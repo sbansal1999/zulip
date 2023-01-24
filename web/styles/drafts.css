@@ -14,6 +14,40 @@
             margin-bottom: 5px;
         }
     }
+
+    .header-body {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        @media (width < $lg_min) {
+            flex-direction: column;
+        }
+
+        .spacer {
+            flex: 1;
+        }
+
+        .delete-drafts-group {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            width: 100%;
+
+            @media (width < $lg_min) {
+                margin-top: 5px;
+            }
+
+            .delete-selected-drafts-button {
+                margin-right: 10px;
+            }
+
+            .select-drafts-button {
+                margin-right: 25px;
+                padding-right: 15px;
+            }
+        }
+    }
 }
 
 .draft-row {
@@ -90,6 +124,11 @@
                 &:hover {
                     opacity: 1;
                 }
+            }
+
+            .checkbox {
+                margin-top: 2px;
+                margin-left: 10px;
             }
         }
 

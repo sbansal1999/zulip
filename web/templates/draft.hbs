@@ -37,6 +37,10 @@
                         <div class="draft_controls overlay_message_controls">
                             <i class="fa fa-pencil fa-lg restore-draft restore-overlay-message tippy-zulip-tooltip" aria-hidden="true" data-tooltip-template-id="restore-draft-tooltip-template"></i>
                             <i class="fa fa-trash-o fa-lg delete-draft delete-overlay-message tippy-zulip-tooltip" aria-hidden="true" data-tooltip-template-id="delete-draft-tooltip-template"></i>
+                            <label class="checkbox">
+                                <input type="checkbox" class="mark-draft" aria-hidden="true"/>
+                                <span class="mark-draft-tooltip"></span>
+                            </label>
                         </div>
                     </div>
                     <div class="message_content rendered_markdown restore-draft restore-overlay-message" title="{{t 'Restore draft' }}">{{rendered_markdown content}}</div>

@@ -6,10 +6,27 @@
                 <div class="exit">
                     <span class="exit-sign">&times;</span>
                 </div>
-                <div class="removed-drafts">
-                    {{t "Drafts are not synced to other devices and browsers." }}
-                    <br />
-                    {{#tr}}Drafts older than <strong>{draft_lifetime}</strong> days are automatically removed.{{/tr}}
+                <div class="header-body">
+                    <div class="spacer"></div>
+                    <div class="spacer removed-drafts">
+                        {{t "Drafts are not synced to other devices and browsers." }}
+                        <br />
+                        {{#tr}}Drafts older than <strong>{draft_lifetime}</strong> days are automatically removed.{{/tr}}
+                    </div>
+                    <div class="spacer delete-drafts-group">
+                        <div class="delete-drafts-tooltip-wrapper">
+                            <button class="button small rounded delete-selected-drafts-button" type="button" disabled>
+                                <div class="fa fa-trash-o fa-lg" aria-hidden="true"></div>
+                            </button>
+                        </div>
+                        <button class="button small rounded select-drafts-button" type="button">
+                            <span>Select all drafts</span>
+                            <label class="checkbox">
+                                <input type="checkbox" class="select-state-indicator" aria-hidden="true"/>
+                                <span></span>
+                            </label>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="drafts-list overlay-messages-list">
