@@ -2,6 +2,8 @@ import $ from "jquery";
 
 const t1 = performance.now();
 export const page_params: {
+    apps_page_url: string;
+    corporate_enabled: boolean;
     language_list: {
         code: string;
         locale: string;
@@ -14,6 +16,7 @@ export const page_params: {
     is_moderator: boolean;
     is_owner: boolean;
     is_spectator: boolean;
+    promote_sponsoring_zulip: boolean;
     realm_add_custom_emoji_policy: number;
     realm_avatar_changes_disabled: boolean;
     realm_create_private_stream_policy: number;
@@ -26,17 +29,27 @@ export const page_params: {
     realm_invite_to_realm_policy: number;
     realm_invite_to_stream_policy: number;
     realm_move_messages_between_streams_policy: number;
+    realm_name: string;
     realm_name_changes_disabled: boolean;
+    realm_org_type: number;
+    realm_plan_type: number;
     realm_push_notifications_enabled: boolean;
     realm_user_group_edit_policy: number;
+    realm_uri: string;
     realm_waiting_period_threshold: number;
     request_language: string;
     server_avatar_changes_disabled: boolean;
     server_name_changes_disabled: boolean;
+    server_needs_upgrade: boolean;
     server_web_public_streams_enabled: boolean;
+    show_billing: boolean;
+    show_plans: boolean;
+    show_webathena: boolean;
     translation_data: Record<string, string>;
     zulip_plan_is_not_limited: boolean;
     muted_users: {id: number; timestamp: number}[];
+    zulip_version: string;
+    zulip_merge_base: string;
 } = $("#page-params").remove().data("params");
 const t2 = performance.now();
 export const page_params_parse_time = t2 - t1;
