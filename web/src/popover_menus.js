@@ -153,11 +153,35 @@ export function initialize() {
 
             instance.setContent(parse_html(render_left_sidebar_stream_setting_popover()));
             left_sidebar_stream_setting_popover_displayed = true;
+
+            //  When showing the popover menu, we want the
+            // "Add Streams" tooltip and the "Filter Streams"
+            //  tooltip to appear below the "Add Streams" icon.
+            $("#add_streams_tooltip").get(0)._tippy.setProps({
+                placement: "bottom",
+            });
+
+            $("#filter_streams_tooltip").get(0)._tippy.setProps({
+                placement: "bottom",
+            });
+
             return true;
         },
         onHidden(instance) {
             instance.destroy();
             left_sidebar_stream_setting_popover_displayed = false;
+
+            //  After the popover menu is closed, we want the
+            //  "Add Streams" tooltip and the "Filter Streams"
+            //  tooltip to appear at it's original position that
+            //  is above the "Add Streams" icon.
+            $("#add_streams_tooltip").get(0)._tippy.setProps({
+                placement: "top",
+            });
+
+            $("#filter_streams_tooltip").get(0)._tippy.setProps({
+                placement: "top",
+            });
         },
     });
 
