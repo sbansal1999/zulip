@@ -27,7 +27,7 @@ function calculate_total_commits(contributor) {
     return commits;
 }
 
-function get_profile_url(contributor, tab_name) {
+function get_profile_url(contributor) {
     const commit_email_linked_to_github = "github_username" in contributor;
 
     if (commit_email_linked_to_github) {
@@ -35,10 +35,6 @@ function get_profile_url(contributor, tab_name) {
     }
 
     const email = contributor.email;
-
-    if (tab_name) {
-        return `https://github.com/zulip/${tab_name}/commits?author=${email}`;
-    }
 
     for (const repo_name in repo_name_to_tab_name) {
         if (repo_name in contributor) {
