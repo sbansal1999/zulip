@@ -1,9 +1,31 @@
 import $ from "jquery";
 import _ from "lodash";
 
-import {page_params} from "../page_params";
+import * as blueslip from "../blueslip";
 
-const repo_name_to_tab_name = {
+const repository_name = [
+    "zulip",
+    "zulip-desktop",
+    "zulip-mobile",
+    "python-zulip-api",
+    "zulip-js",
+    "zulipbot",
+    "zulip-terminal",
+    "zulip-ios-legacy",
+    "zulip-android",
+] as const;
+type RepositoryNameType = typeof repository_name[number];
+
+export type Contributor = {
+    avatar: string;
+    email: string;
+    github_username?: string;
+    name: string;
+} & {
+    [K in RepositoryNameType]: number;
+};
+
+const repo_name_to_tab_name: Record<RepositoryNameType, string> = {
     zulip: "server",
     "zulip-desktop": "desktop",
     "zulip-mobile": "mobile",
@@ -17,21 +39,24 @@ const repo_name_to_tab_name = {
 
 // Remember the loaded repositories so that HTML is not redundantly edited
 // if a user leaves and then revisits the same tab.
-const loaded_repos = [];
+const loaded_repos: string[] = [];
 
-function calculate_total_commits(contributor) {
+function calculate_total_commits(contributor: Contributor): number {
     let commits = 0;
-    for (const repo_name of Object.keys(repo_name_to_tab_name)) {
-        commits += contributor[repo_name] || 0;
+    for (const repo_name of repository_name) {
+        commits += contributor[repo_name];
     }
     return commits;
 }
 
-function get_profile_url(contributor) {
+function get_profile_url(contributor: Contributor): string | undefined {
     const commit_email_linked_to_github = "github_username" in contributor;
 
     if (commit_email_linked_to_github) {
-        return "https://github.com/" + contributor.github_username;
+        if (contributor.github_username) {
+            return `https://github.com/${contributor.github_username}`;
+        }
+        blueslip.error("Contributor's github username is undefined.");
     }
 
     const email = contributor.email;
@@ -45,26 +70,26 @@ function get_profile_url(contributor) {
     return undefined;
 }
 
-function get_display_name(contributor) {
+function get_display_name(contributor: Contributor): string {
     if (contributor.github_username) {
         return "@" + contributor.github_username;
     }
     return contributor.name;
 }
 
-function exclude_bot_contributors(contributor) {
+function exclude_bot_contributors(contributor: Contributor): boolean {
     return contributor.github_username !== "dependabot[bot]";
 }
 
 // TODO (for v2 of /team contributors):
 //   - Make tab header responsive.
 //   - Display full name instead of GitHub username.
-export default function render_tabs() {
+export default function render_tabs(contributors: Contributor[]): void {
     const template = _.template($("#contributors-template").html());
     const count_template = _.template($("#count-template").html());
     const total_count_template = _.template($("#total-count-template").html());
-    const contributors_list = page_params.contributors
-        ? page_params.contributors.filter((c) => exclude_bot_contributors(c))
+    const contributors_list = contributors
+        ? contributors.filter((c) => exclude_bot_contributors(c))
         : [];
     const mapped_contributors_list = contributors_list.map((c) => ({
         name: get_display_name(c),
@@ -91,7 +116,7 @@ export default function render_tabs() {
         }),
     );
 
-    for (const repo_name of Object.keys(repo_name_to_tab_name)) {
+    for (const repo_name of repository_name) {
         const tab_name = repo_name_to_tab_name[repo_name];
         if (!tab_name) {
             continue;
