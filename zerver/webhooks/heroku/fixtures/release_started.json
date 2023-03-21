@@ -1,0 +1,64 @@
+{
+  "id": "6e78e4ce-a987-4a7e-b2a6-1debdd8848ab",
+  "data": {
+    "id": "7d285291-f2a7-46bd-9a0a-458fe2361a39",
+    "app": {
+      "id": "a70606ec-1234-4a9d-8d8a-55daaf149d0b",
+      "name": "trade-it-15-server",
+      "process_tier": "eco"
+    },
+    "slug": {
+      "id": "811435a3-0349-4fd3-aab1-9ce1b45d15c0",
+      "commit": "ff2423db4af6191645f7caca2010fe4bf7a86524",
+      "commit_description": ""
+    },
+    "user": {
+      "id": "157c8db0-2f66-4cb5-b868-3e640190a619",
+      "email": "sbansal1999@gmail.com"
+    },
+    "stack": "heroku-20",
+    "status": "succeeded",
+    "current": true,
+    "pstable": {
+      "web": {
+        "slug": {
+          "id": "94318d2a-16a9-4ef0-8cd2-8c23f6393251"
+        },
+        "command": "node server.js"
+      }
+    },
+    "version": 50,
+    "created_at": "2023-03-20T13:04:29Z",
+    "updated_at": "2023-03-20T13:04:29Z",
+    "description": "Deploy ff2423db",
+    "addon_plan_names": [],
+    "output_stream_url": null
+  },
+  "actor": {
+    "id": "157c8db0-2f66-4cb5-b868-3e640190a619",
+    "email": "sbansal1999@gmail.com"
+  },
+  "action": "create",
+  "version": "application/vnd.heroku+json; version=3",
+  "resource": "release",
+  "sequence": null,
+  "created_at": "2023-03-20T13:04:29.655475Z",
+  "updated_at": "2023-03-20T13:04:29.655481Z",
+  "published_at": "2023-03-20T13:04:30Z",
+  "previous_data": {},
+  "webhook_metadata": {
+    "attempt": {
+      "id": "0da092bf-b514-4541-af2c-5a7092b2e5e8"
+    },
+    "delivery": {
+      "id": "8469ee5f-5a79-4ac3-8299-2d44d39d1359"
+    },
+    "event": {
+      "id": "6e78e4ce-a987-4a7e-b2a6-1debdd8848ab",
+      "include": "api:release"
+    },
+    "webhook": {
+      "id": "992f33d4-6d5e-49a2-a7d4-5708dcc5aa4d"
+    }
+  }
+}
