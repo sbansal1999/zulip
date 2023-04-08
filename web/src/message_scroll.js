@@ -9,6 +9,7 @@ import * as message_lists from "./message_lists";
 import * as message_viewport from "./message_viewport";
 import * as narrow_banner from "./narrow_banner";
 import * as narrow_state from "./narrow_state";
+import * as recent_topics_ui from "./recent_topics_ui";
 import * as recent_topics_util from "./recent_topics_util";
 import * as unread from "./unread";
 import * as unread_ops from "./unread_ops";
@@ -246,7 +247,7 @@ export function initialize() {
     message_viewport.$message_pane.on(
         "scroll",
         _.throttle(() => {
-            unread_ops.process_visible();
+            unread_ops.process_visible(recent_topics_ui.update_topic_unread_count);
             scroll_finish();
         }, 50),
     );
@@ -266,7 +267,11 @@ export function initialize() {
                 messages = event.msg_list.message_range(event.previously_selected_id, event.id);
             }
             if (event.msg_list.can_mark_messages_read()) {
-                unread_ops.notify_server_messages_read(messages, {from: "pointer"});
+                unread_ops.notify_server_messages_read(
+                    messages,
+                    {from: "pointer"},
+                    recent_topics_ui.update_topic_unread_count,
+                );
             } else if (
                 unread.get_unread_messages(messages).length !== 0 &&
                 // The below checks might seem redundant, but it's

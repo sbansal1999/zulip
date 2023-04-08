@@ -820,7 +820,7 @@ export function update_selection(opts) {
         // narrowing
         message_lists.current.view.set_message_offset(select_offset);
     }
-    unread_ops.process_visible();
+    unread_ops.process_visible(recent_topics_ui.update_topic_unread_count);
 }
 
 export function activate_stream_for_cycle_hotkey(stream_name) {
@@ -923,7 +923,7 @@ export function by_topic(target_id, opts) {
     // We don't check msg_list.can_mark_messages_read here only because
     // the target msg_list isn't initialized yet; in any case, the
     // message is about to be marked read in the new view.
-    unread_ops.notify_server_message_read(original);
+    unread_ops.notify_server_message_read(original, {}, recent_topics_ui.update_topic_unread_count);
 
     const search_terms = [
         {operator: "stream", operand: original.stream},
@@ -942,7 +942,7 @@ export function by_recipient(target_id, opts) {
     // We don't check msg_list.can_mark_messages_read here only because
     // the target msg_list isn't initialized yet; in any case, the
     // message is about to be marked read in the new view.
-    unread_ops.notify_server_message_read(message);
+    unread_ops.notify_server_message_read(message, {}, recent_topics_ui.update_topic_unread_count);
 
     switch (message.type) {
         case "private":

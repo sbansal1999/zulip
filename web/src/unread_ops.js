@@ -16,7 +16,6 @@ import * as message_viewport from "./message_viewport";
 import * as narrow_state from "./narrow_state";
 import * as notifications from "./notifications";
 import * as people from "./people";
-import * as recent_topics_ui from "./recent_topics_ui";
 import * as ui_report from "./ui_report";
 import * as unread from "./unread";
 import * as unread_ui from "./unread_ui";
@@ -148,12 +147,12 @@ export function mark_all_as_read(args = {}) {
     });
 }
 
-function process_newly_read_message(message, options) {
+function process_newly_read_message(message, options, update_topic_unread_count) {
     for (const msg_list of message_lists.all_rendered_message_lists()) {
         msg_list.show_message_as_read(message, options);
     }
     notifications.close_notification(message);
-    recent_topics_ui.update_topic_unread_count(message);
+    update_topic_unread_count(message);
 }
 
 export function mark_as_unread_from_here(
@@ -257,7 +256,7 @@ export function resume_reading() {
     message_lists.current.resume_reading();
 }
 
-export function process_read_messages_event(message_ids) {
+export function process_read_messages_event(message_ids, update_topic_unread_count) {
     /*
         This code has a lot in common with notify_server_messages_read,
         but there are subtle differences due to the fact that the
@@ -287,14 +286,14 @@ export function process_read_messages_event(message_ids) {
         // recent conversations per message, not a single global
         // rerender or one per conversation.
         if (message) {
-            process_newly_read_message(message, options);
+            process_newly_read_message(message, options, update_topic_unread_count);
         }
     }
 
     unread_ui.update_unread_counts();
 }
 
-export function process_unread_messages_event({message_ids, message_details}) {
+export function process_unread_messages_event({message_ids, message_details}, complete_rerender) {
     // This is the reverse of  process_unread_messages_event.
     message_ids = unread.get_read_message_ids(message_ids);
     if (message_ids.length === 0) {
@@ -347,7 +346,7 @@ export function process_unread_messages_event({message_ids, message_details}) {
         user-visible in the form of users' avatars flickering.
     */
     message_live_update.rerender_messages_view_by_message_ids(message_ids);
-    recent_topics_ui.complete_rerender();
+    complete_rerender();
 
     if (
         !message_lists.current.can_mark_messages_read() &&
@@ -361,7 +360,7 @@ export function process_unread_messages_event({message_ids, message_details}) {
 
 // Takes a list of messages and marks them as read.
 // Skips any messages that are already marked as read.
-export function notify_server_messages_read(messages, options = {}) {
+export function notify_server_messages_read(messages, options = {}, update_topic_unread_count) {
     messages = unread.get_unread_messages(messages);
     if (messages.length === 0) {
         return;
@@ -375,7 +374,7 @@ export function notify_server_messages_read(messages, options = {}) {
         }
 
         unread.mark_as_read(message.id);
-        process_newly_read_message(message, options);
+        process_newly_read_message(message, options, update_topic_unread_count);
     }
 
     unread_ui.update_unread_counts();
@@ -385,14 +384,14 @@ export function notify_server_message_read(message, options) {
     notify_server_messages_read([message], options);
 }
 
-export function process_scrolled_to_bottom() {
+export function process_scrolled_to_bottom(update_topic_unread_count) {
     if (!narrow_state.is_message_feed_visible()) {
         // First, verify the current message list is visible.
         return;
     }
 
     if (message_lists.current.can_mark_messages_read()) {
-        mark_current_list_as_read();
+        mark_current_list_as_read({}, update_topic_unread_count);
         return;
     }
 
@@ -406,14 +405,18 @@ export function process_scrolled_to_bottom() {
 
 // If we ever materially change the algorithm for this function, we
 // may need to update notifications.received_messages as well.
-export function process_visible() {
+export function process_visible(update_topic_unread_count) {
     if (message_viewport.is_visible_and_focused() && message_viewport.bottom_message_visible()) {
-        process_scrolled_to_bottom();
+        process_scrolled_to_bottom(update_topic_unread_count);
     }
 }
 
-export function mark_current_list_as_read(options) {
-    notify_server_messages_read(message_lists.current.all_messages(), options);
+export function mark_current_list_as_read(options, update_topic_unread_count) {
+    notify_server_messages_read(
+        message_lists.current.all_messages(),
+        options,
+        update_topic_unread_count,
+    );
 }
 
 export function mark_stream_as_read(stream_id, cont) {

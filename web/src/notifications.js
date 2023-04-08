@@ -17,6 +17,7 @@ import * as navigate from "./navigate";
 import {page_params} from "./page_params";
 import * as people from "./people";
 import {realm_user_settings_defaults} from "./realm_user_settings_defaults";
+import * as recent_topics_ui from "./recent_topics_ui";
 import * as settings_config from "./settings_config";
 import * as spoilers from "./spoilers";
 import * as stream_data from "./stream_data";
@@ -85,7 +86,7 @@ export function initialize() {
 
             // Update many places on the DOM to reflect unread
             // counts.
-            unread_ops.process_visible();
+            unread_ops.process_visible(recent_topics_ui.update_topic_unread_count);
         })
         .on("blur", () => {
             window_focused = false;

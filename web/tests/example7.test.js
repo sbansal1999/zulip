@@ -60,6 +60,7 @@ message_lists.home = {};
 message_lists.all_rendered_message_lists = () => [message_lists.home, message_lists.current];
 
 const message_store = zrequire("message_store");
+const recent_topics_ui = zrequire("recent_topics_ui");
 const recent_topics_util = zrequire("recent_topics_util");
 const stream_data = zrequire("stream_data");
 const unread = zrequire("unread");
@@ -129,13 +130,13 @@ run_test("unread_ops", ({override}) => {
 
     // First, test for a message list that cannot read messages.
     can_mark_messages_read = false;
-    unread_ops.process_visible();
+    unread_ops.process_visible(recent_topics_ui.update_topic_unread_count);
 
     assert.deepEqual(channel_post_opts, undefined);
 
     // Now flip the boolean, and get to the main thing we are testing.
     can_mark_messages_read = true;
-    unread_ops.process_visible();
+    unread_ops.process_visible(recent_topics_ui.update_topic_unread_count);
 
     // The most important side effect of the above call is that
     // we post info to the server.  We can verify that the correct
