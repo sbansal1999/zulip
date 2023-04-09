@@ -8,7 +8,7 @@ const {run_test} = require("./lib/test");
 const channel = mock_esm("../src/channel");
 const ui = mock_esm("../src/ui");
 
-mock_esm("../src/starred_messages", {
+mock_esm("../src/starred_messages_data", {
     add() {},
     get_starred_msg_ids: () => [1, 2, 3, 4, 5],
     remove() {},

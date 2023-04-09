@@ -2,6 +2,7 @@ import _ from "lodash";
 
 import * as channel from "./channel";
 import * as message_store from "./message_store";
+import * as starred_message_ui from "./starred_message_ui";
 import * as starred_messages_data from "./starred_messages_data";
 import * as ui from "./ui";
 import * as unread_ops from "./unread_ops";
@@ -110,9 +111,11 @@ export function toggle_starred_and_update_server(message) {
     if (message.starred) {
         send_flag_update_for_messages([message.id], "starred", "add");
         starred_messages_data.add([message.id]);
+        starred_message_ui.rerender_ui();
     } else {
         send_flag_update_for_messages([message.id], "starred", "remove");
         starred_messages_data.remove([message.id]);
+        starred_message_ui.rerender_ui();
     }
 }
 

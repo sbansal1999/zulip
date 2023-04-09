@@ -1,6 +1,5 @@
 import * as message_store from "./message_store";
 import {page_params} from "./page_params";
-import {rerender_ui} from "./starred_message_ui";
 
 export const starred_ids = new Set();
 
@@ -10,24 +9,18 @@ export function initialize() {
     for (const id of page_params.starred_messages) {
         starred_ids.add(id);
     }
-
-    rerender_ui();
 }
 
 export function add(ids) {
     for (const id of ids) {
         starred_ids.add(id);
     }
-
-    rerender_ui();
 }
 
 export function remove(ids) {
     for (const id of ids) {
         starred_ids.delete(id);
     }
-
-    rerender_ui();
 }
 
 export function get_count() {

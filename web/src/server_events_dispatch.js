@@ -753,8 +753,10 @@ export function dispatch_normal_event(event) {
 
                     if (event.op === "add") {
                         starred_messages_data.add(event.messages);
+                        starred_message_ui.rerender_ui();
                     } else {
                         starred_messages_data.remove(event.messages);
+                        starred_message_ui.rerender_ui();
                     }
                     break;
                 case "read":
