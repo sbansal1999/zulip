@@ -37,7 +37,7 @@ import * as popovers from "./popovers";
 import * as read_receipts from "./read_receipts";
 import * as rows from "./rows";
 import * as settings_data from "./settings_data";
-import * as starred_messages from "./starred_messages";
+import * as starred_messages_data from "./starred_messages_data";
 import * as starred_messages_ui from "./starred_messages_ui";
 import * as stream_popover from "./stream_popover";
 import {parse_html} from "./ui_util";
@@ -616,7 +616,7 @@ export function initialize() {
         },
         onShow(instance) {
             popovers.hide_all_except_sidebars();
-            const show_unstar_all_button = starred_messages.get_count() > 0;
+            const show_unstar_all_button = starred_messages_data.get_count() > 0;
 
             instance.setContent(
                 parse_html(
