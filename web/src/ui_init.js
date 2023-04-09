@@ -86,7 +86,7 @@ import * as settings_realm_user_settings_defaults from "./settings_realm_user_se
 import * as settings_sections from "./settings_sections";
 import * as settings_toggle from "./settings_toggle";
 import * as spoilers from "./spoilers";
-import * as starred_messages from "./starred_messages";
+import * as starred_messages_data from "./starred_messages_data";
 import * as stream_bar from "./stream_bar";
 import * as stream_data from "./stream_data";
 import * as stream_edit from "./stream_edit";
@@ -695,7 +695,7 @@ export function initialize_everything() {
     hotspots.initialize();
     ui.initialize();
     typing.initialize();
-    starred_messages.initialize();
+    starred_messages_data.initialize();
     user_status_ui.initialize();
     fenced_code.initialize(generated_pygments_data);
     message_edit_history.initialize();

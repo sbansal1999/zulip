@@ -12,7 +12,7 @@ import * as muted_users from "./muted_users";
 import * as narrow_state from "./narrow_state";
 import {page_params} from "./page_params";
 import * as settings_data from "./settings_data";
-import * as starred_messages from "./starred_messages";
+import * as starred_messages_data from "./starred_messages_data";
 import * as stream_data from "./stream_data";
 import * as sub_store from "./sub_store";
 import * as user_topics from "./user_topics";
@@ -128,7 +128,8 @@ export function get_actions_popover_content_context(message_id) {
 export function get_topic_popover_content_context({stream_id, topic_name, url}) {
     const sub = sub_store.get(stream_id);
     const topic_muted = user_topics.is_topic_muted(sub.stream_id, topic_name);
-    const has_starred_messages = starred_messages.get_count_in_topic(sub.stream_id, topic_name) > 0;
+    const has_starred_messages_data =
+        starred_messages_data.get_count_in_topic(sub.stream_id, topic_muted) > 0;
     const can_move_topic = settings_data.user_can_move_messages_between_streams();
     return {
         stream_name: sub.name,
@@ -139,7 +140,7 @@ export function get_topic_popover_content_context({stream_id, topic_name, url}) 
         is_realm_admin: page_params.is_admin,
         topic_is_resolved: resolved_topic.is_resolved(topic_name),
         color: sub.color,
-        has_starred_messages,
+        has_starred_messages_data,
         url,
     };
 }

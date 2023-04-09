@@ -1,8 +1,6 @@
 import * as message_store from "./message_store";
 import {page_params} from "./page_params";
-import * as popover_menus from "./popover_menus";
-import * as top_left_corner from "./top_left_corner";
-import {user_settings} from "./user_settings";
+import {rerender_ui} from "./starred_message_ui";
 
 export const starred_ids = new Set();
 
@@ -70,17 +68,4 @@ export function get_count_in_topic(stream_id, topic) {
     });
 
     return messages.length;
-}
-
-export function rerender_ui() {
-    let count = get_count();
-
-    if (!user_settings.starred_message_counts) {
-        // This essentially hides the count
-        count = 0;
-    }
-
-    popover_menus.get_topic_menu_popover()?.hide();
-    popover_menus.get_starred_messages_popover()?.hide();
-    top_left_corner.update_starred_count(count);
 }

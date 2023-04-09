@@ -57,7 +57,8 @@ import * as settings_realm_user_settings_defaults from "./settings_realm_user_se
 import * as settings_streams from "./settings_streams";
 import * as settings_user_groups from "./settings_user_groups_legacy";
 import * as settings_users from "./settings_users";
-import * as starred_messages from "./starred_messages";
+import * as starred_message_ui from "./starred_message_ui";
+import * as starred_messages_data from "./starred_messages_data";
 import * as stream_data from "./stream_data";
 import * as stream_events from "./stream_events";
 import * as stream_list from "./stream_list";
@@ -692,7 +693,7 @@ export function dispatch_normal_event(event) {
                 }, 300);
             }
             if (event.property === "starred_message_counts") {
-                starred_messages.rerender_ui();
+                starred_message_ui.rerender_ui();
             }
             if (event.property === "fluid_layout_width") {
                 scroll_bar.set_layout_width();
@@ -751,9 +752,9 @@ export function dispatch_normal_event(event) {
                     }
 
                     if (event.op === "add") {
-                        starred_messages.add(event.messages);
+                        starred_messages_data.add(event.messages);
                     } else {
-                        starred_messages.remove(event.messages);
+                        starred_messages_data.remove(event.messages);
                     }
                     break;
                 case "read":
