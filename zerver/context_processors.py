@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from typing import Any, Dict, Mapping, Optional
 from urllib.parse import urljoin
 
@@ -15,6 +16,10 @@ from version import (
     ZULIP_VERSION,
 )
 from zerver.lib.exceptions import InvalidSubdomainError
+from zerver.lib.integrations import (
+    CATEGORIES,
+    INTEGRATIONS,
+)
 from zerver.lib.realm_description import get_realm_rendered_description, get_realm_text_description
 from zerver.lib.realm_icon import get_realm_icon_url
 from zerver.lib.request import RequestNotes
@@ -194,6 +199,8 @@ def zulip_default_context(request: HttpRequest) -> Dict[str, Any]:
     if realm is not None and realm.icon_source == realm.ICON_UPLOADED:
         context["PAGE_METADATA_IMAGE"] = urljoin(realm_uri, realm_icon)
 
+    add_integrations_context(context)
+
     return context
 
 
@@ -266,3 +273,15 @@ def get_realm_create_form_context() -> Dict[str, Any]:
         "sorted_realm_types": sorted(Realm.ORG_TYPES.values(), key=lambda d: d["display_order"]),
     }
     return context
+
+
+def add_integrations_context(context: Dict[str, Any]) -> None:
+    alphabetical_sorted_categories = OrderedDict(sorted(CATEGORIES.items()))
+    alphabetical_sorted_integration = OrderedDict(sorted(INTEGRATIONS.items()))
+    enabled_integrations_count = len(list(filter(lambda v: v.is_enabled(), INTEGRATIONS.values())))
+    # Subtract 1 so saying "Over X integrations" is correct. Then,
+    # round down to the nearest multiple of 10.
+    integrations_count_display = ((enabled_integrations_count - 1) // 10) * 10
+    context["categories_dict"] = alphabetical_sorted_categories
+    context["integrations_dict"] = alphabetical_sorted_integration
+    context["integrations_count_display"] = integrations_count_display

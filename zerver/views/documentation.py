@@ -1,7 +1,6 @@
 import os
 import random
 import re
-from collections import OrderedDict
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
@@ -10,7 +9,7 @@ from django.http import HttpRequest, HttpResponse, HttpResponseNotFound
 from django.template import loader
 from django.views.generic import TemplateView
 
-from zerver.context_processors import zulip_default_context
+from zerver.context_processors import add_integrations_context, zulip_default_context
 from zerver.decorator import add_google_analytics_context
 from zerver.lib.integrations import (
     CATEGORIES,
@@ -241,18 +240,6 @@ class MarkdownDirectoryView(ApiURLView):
         if http_status != 200:
             result.status_code = http_status
         return result
-
-
-def add_integrations_context(context: Dict[str, Any]) -> None:
-    alphabetical_sorted_categories = OrderedDict(sorted(CATEGORIES.items()))
-    alphabetical_sorted_integration = OrderedDict(sorted(INTEGRATIONS.items()))
-    enabled_integrations_count = len(list(filter(lambda v: v.is_enabled(), INTEGRATIONS.values())))
-    # Subtract 1 so saying "Over X integrations" is correct. Then,
-    # round down to the nearest multiple of 10.
-    integrations_count_display = ((enabled_integrations_count - 1) // 10) * 10
-    context["categories_dict"] = alphabetical_sorted_categories
-    context["integrations_dict"] = alphabetical_sorted_integration
-    context["integrations_count_display"] = integrations_count_display
 
 
 def add_integrations_open_graph_context(context: Dict[str, Any], request: HttpRequest) -> None:
