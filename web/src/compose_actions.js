@@ -437,7 +437,11 @@ export function respond_to_message(opts) {
         }
 
         if (message_lists.current.can_mark_messages_read()) {
-            unread_ops.notify_server_message_read(message);
+            unread_ops.notify_server_message_read(
+                message,
+                {},
+                recent_topics_ui.update_topic_unread_count,
+            );
         }
     }
 

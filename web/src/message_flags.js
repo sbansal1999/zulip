@@ -2,6 +2,7 @@ import _ from "lodash";
 
 import * as channel from "./channel";
 import * as message_store from "./message_store";
+import * as recent_topics_ui from "./recent_topics_ui";
 import * as starred_messages from "./starred_messages";
 import * as ui from "./ui";
 import * as unread_ops from "./unread_ops";
@@ -104,7 +105,7 @@ export function toggle_starred_and_update_server(message) {
     // msg_list.can_mark_messages_read, because starring a message is an
     // explicit interaction and we'd like to preserve the user
     // expectation invariant that all starred messages are read.
-    unread_ops.notify_server_message_read(message);
+    unread_ops.notify_server_message_read(message, {}, recent_topics_ui.update_topic_unread_count);
     ui.update_starred_view(message.id, message.starred);
 
     if (message.starred) {

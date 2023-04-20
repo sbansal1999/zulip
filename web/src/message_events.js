@@ -77,7 +77,7 @@ function maybe_add_narrowed_messages(messages, msg_list, callback, attempt = 1) 
             );
 
             callback(new_messages, msg_list);
-            unread_ops.process_visible();
+            unread_ops.process_visible(recent_topics_ui.update_topic_unread_count);
             notifications.notify_messages_outside_current_search(elsewhere_messages);
         },
         error(xhr) {
@@ -159,7 +159,7 @@ export function insert_new_messages(messages, sent_by_this_client) {
         unread_ui.update_unread_counts();
     }
 
-    unread_ops.process_visible();
+    unread_ops.process_visible(recent_topics_ui.update_topic_unread_count);
     notifications.received_messages(messages);
     stream_list.update_streams_sidebar();
     pm_list.update_private_messages();

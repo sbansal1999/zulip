@@ -38,6 +38,7 @@ import * as realm_icon from "./realm_icon";
 import * as realm_logo from "./realm_logo";
 import * as realm_playground from "./realm_playground";
 import {realm_user_settings_defaults} from "./realm_user_settings_defaults";
+import * as recent_topics_ui from "./recent_topics_ui";
 import * as reload from "./reload";
 import * as scroll_bar from "./scroll_bar";
 import * as settings_account from "./settings_account";
@@ -102,7 +103,10 @@ export function dispatch_normal_event(event) {
             // message is passed to unread.get_unread_messages,
             // which returns all the unread messages out of a given list.
             // So double marking something as read would not occur
-            unread_ops.process_read_messages_event(msg_ids);
+            unread_ops.process_read_messages_event(
+                msg_ids,
+                recent_topics_ui.update_topic_unread_count,
+            );
             // This methods updates message_list too and since stream_topic_history relies on it
             // this method should be called first.
             message_events.remove_messages(msg_ids);
@@ -759,12 +763,18 @@ export function dispatch_normal_event(event) {
                     break;
                 case "read":
                     if (event.op === "add") {
-                        unread_ops.process_read_messages_event(event.messages);
+                        unread_ops.process_read_messages_event(
+                            event.messages,
+                            recent_topics_ui.update_topic_unread_count,
+                        );
                     } else {
-                        unread_ops.process_unread_messages_event({
-                            message_ids: event.messages,
-                            message_details: event.message_details,
-                        });
+                        unread_ops.process_unread_messages_event(
+                            {
+                                message_ids: event.messages,
+                                message_details: event.message_details,
+                            },
+                            recent_topics_ui.complete_rerender,
+                        );
                     }
                     break;
             }
