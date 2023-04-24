@@ -128,6 +128,7 @@ export function open_settings_overlay() {
         $overlay: $("#settings_overlay_container"),
         on_close() {
             browser_history.exit_overlay();
+            $(".flatpickr-calendar").remove();
         },
     });
 }
