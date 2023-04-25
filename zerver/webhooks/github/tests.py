@@ -38,7 +38,7 @@ class GitHubWebhookTest(WebhookTestCase):
         self.check_webhook("push__delete_branch", "public-repo / feature", expected_message)
 
     def test_push_force(self) -> None:
-        expected_message = "sbansal1999 [pushed](https://github.com/sbansal1999/testing-gh/compare/9edbee9dc904...c0dcba5885f8) 2 commits to branch fixing-typo.\n\n* d ([70029144adc](https://github.com/sbansal1999/testing-gh/commit/70029144adc043fbe6f50498ab36acd3c4ba302f))\n* e ([c0dcba5885f](https://github.com/sbansal1999/testing-gh/commit/c0dcba5885f8d9def1f798e3f5eb24e0ace5a030))"
+        expected_message = "sbansal1999 [force-pushed](https://github.com/sbansal1999/testing-gh/compare/9edbee9dc904...c0dcba5885f8) 2 commits to branch fixing-typo.\n\n* d ([70029144adc](https://github.com/sbansal1999/testing-gh/commit/70029144adc043fbe6f50498ab36acd3c4ba302f))\n* e ([c0dcba5885f](https://github.com/sbansal1999/testing-gh/commit/c0dcba5885f8d9def1f798e3f5eb24e0ace5a030))"
         self.check_webhook("push__force", "testing-gh / fixing-typo", expected_message)
 
     def test_push_local_branch_without_commits(self) -> None:
