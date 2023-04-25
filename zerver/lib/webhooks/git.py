@@ -13,8 +13,8 @@ COMMIT_ROW_TEMPLATE = "* {commit_msg} ([{commit_short_sha}]({commit_url}))\n"
 COMMITS_MORE_THAN_LIMIT_TEMPLATE = "[and {commits_number} more commit(s)]"
 COMMIT_OR_COMMITS = "commit{}"
 
-PUSH_PUSHED_TEXT_WITH_URL = "[pushed]({compare_url}) {number_of_commits} {commit_or_commits}"
-PUSH_PUSHED_TEXT_WITHOUT_URL = "pushed {number_of_commits} {commit_or_commits}"
+PUSH_PUSHED_TEXT_WITH_URL = "[{push_type}]({compare_url}) {number_of_commits} {commit_or_commits}"
+PUSH_PUSHED_TEXT_WITHOUT_URL = "{push_type} {number_of_commits} {commit_or_commits}"
 
 PUSH_COMMITS_BASE = "{user_name} {pushed_text} to branch {branch_name}."
 PUSH_COMMITS_MESSAGE_TEMPLATE_WITH_COMMITTERS = (
@@ -87,6 +87,7 @@ def get_push_commits_event_message(
     compare_url: Optional[str],
     branch_name: str,
     commits_data: List[Dict[str, Any]],
+    push_type: str = "pushed",
     is_truncated: bool = False,
     deleted: bool = False,
 ) -> str:
@@ -117,6 +118,7 @@ def get_push_commits_event_message(
         compare_url=compare_url,
         number_of_commits=len(commits_data),
         commit_or_commits=COMMIT_OR_COMMITS.format("s" if len(commits_data) > 1 else ""),
+        push_type=push_type,
     )
 
     committers_items: List[Tuple[str, int]] = get_all_committers(commits_data)
