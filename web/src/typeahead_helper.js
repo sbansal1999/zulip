@@ -387,21 +387,7 @@ export function sort_recipients({
         }
     }
 
-    // Push exact matches to top. We could do by passing the
-    // comparator parameter to triage, but that would break the
-    // optimization of only doing expensive sorting operations when
-    // necessary.
-    const exact_matches = [];
-    const rest = [];
-    for (const item of items) {
-        if (item.full_name?.toLowerCase() === query.toLowerCase()) {
-            exact_matches.push(item);
-        } else {
-            rest.push(item);
-        }
-    }
-
-    return [...exact_matches, ...rest].slice(0, max_num_items);
+    return items.slice(0, max_num_items);
 }
 
 function slash_command_comparator(slash_command_a, slash_command_b) {
