@@ -345,6 +345,15 @@ class GitHubWebhookTest(WebhookTestCase):
             expected_message,
         )
 
+    def test_pull_request_unassigned_multiple_assignees_msg(self) -> None:
+        expected_message = "sbansal1999 unassigned [PR #5](https://github.com/sbansal1999/testing-gh/pull/5) to sbansal1999."
+        expected_topic = "testing-gh / PR #5 testing"
+        self.check_webhook(
+            "pull_request__unassigned_multiple_assignees",
+            expected_topic,
+            expected_message,
+        )
+
     def test_pull_request_ready_for_review_msg(self) -> None:
         expected_message = "**Hypro999** has marked [PR #2](https://github.com/Hypro999/temp-test-github-webhook/pull/2) as ready for review."
         self.check_webhook(
