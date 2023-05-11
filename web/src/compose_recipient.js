@@ -166,6 +166,7 @@ export function update_compose_for_message_type(message_type, opts) {
         $("#stream_toggle").removeClass("active");
         $("#private_message_toggle").addClass("active");
         $("#compose-recipient").addClass("compose-recipient-direct-selected");
+        $(".compose_right_float_container").removeClass("disabled-compose-send-button-container");
         // TODO: When "Direct message" is selected, we show "DM" on the dropdown
         // button. It would be nice if the dropdown supported a way to attach
         // the "DM" button display string so we wouldn't have to manually change
