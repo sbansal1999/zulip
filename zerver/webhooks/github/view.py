@@ -107,11 +107,7 @@ def get_assigned_or_unassigned_pull_request_body(helper: Helper) -> str:
         title=pull_request["title"].tame(check_string) if include_title else None,
     )
     if has_assignee:
-        stringified_assignee = payload["assignee"]["login"].tame(check_string)
-        if action == "assigned":
-            return f"{base_message[:-1]} to {stringified_assignee}."
-        elif action == "unassigned":
-            return base_message.replace("unassigned", f"unassigned {stringified_assignee} from")
+        return add_stringified_assignee_to_message(action, base_message, payload)
     return base_message
 
 
@@ -175,12 +171,17 @@ def get_issue_body(helper: Helper) -> str:
     )
 
     if has_assignee:
-        stringified_assignee = payload["assignee"]["login"].tame(check_string)
-        if action == "assigned":
-            return f"{base_message[:-1]} to {stringified_assignee}."
-        elif action == "unassigned":
-            return base_message.replace("unassigned", f"unassigned {stringified_assignee} from")
+        return add_stringified_assignee_to_message(action, base_message, payload)
 
+    return base_message
+
+
+def add_stringified_assignee_to_message(action: str, base_message: str, payload: WildValue) -> str:
+    stringified_assignee = payload["assignee"]["login"].tame(check_string)
+    if action == "assigned":
+        return f"{base_message[:-1]} to {stringified_assignee}."
+    elif action == "unassigned":
+        return base_message.replace("unassigned", f"unassigned {stringified_assignee} from")
     return base_message
 
 
