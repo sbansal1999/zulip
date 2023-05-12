@@ -96,7 +96,7 @@ def get_assigned_or_unassigned_pull_request_body(helper: Helper) -> str:
     payload = helper.payload
     include_title = helper.include_title
     pull_request = payload["pull_request"]
-    assignee = pull_request.get("assignee")
+    has_assignee = "assignee" in payload
 
     base_message = get_pull_request_event_message(
         user_name=get_sender_name(payload),
@@ -105,8 +105,8 @@ def get_assigned_or_unassigned_pull_request_body(helper: Helper) -> str:
         number=pull_request["number"].tame(check_int),
         title=pull_request["title"].tame(check_string) if include_title else None,
     )
-    if assignee:
-        stringified_assignee = assignee["login"].tame(check_string)
+    if has_assignee:
+        stringified_assignee = payload["assignee"]["login"].tame(check_string)
         return f"{base_message[:-1]} to {stringified_assignee}."
     return base_message
 
