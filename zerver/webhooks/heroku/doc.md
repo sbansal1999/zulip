@@ -5,13 +5,14 @@ is pushed to Heroku using the Zulip Heroku plugin!
 
 1. {!create-bot-construct-url.md!}
 
-1. Go to your project on Heroku
-   and click the **Resources** tab. Add the **Deploy Hooks** add-on.
-   Select the **HTTP Post Hook** plan, and click **Provision**. Click on
-   the **Deploy Hooks** add-on you just added.
+1. Go to the **Dashboard** page for your app and to to the dropdown
+   menu below **More**. You will see an option to **View Webhooks** that
+   will take you to the webhooks creation and management interface.
 
-1. Set **URL** to the URL constructed above. Click **Save and Send Test**
-   to send a test message to your Zulip organization.
+1. On this page click on **Create Webhook** and fill out the form
+   and set the **Payload URL** to the URL constructed above. Right
+   now, we only support **api:build** and **api:release** events.
+   After you've filled out the form, click on **Add Webhook**.
 
 {!congrats.md!}
 

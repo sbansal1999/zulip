@@ -3,47 +3,39 @@ from zerver.lib.test_classes import WebhookTestCase
 
 class HerokuHookTests(WebhookTestCase):
     STREAM_NAME = "heroku"
-    URL_TEMPLATE = "/api/v1/external/heroku?stream={stream}&api_key={api_key}"
+    URL_TEMPLATE = "/api/v1/external/heroku?&api_key={api_key}&stream={stream}"
+    WEBHOOK_DIR_NAME = "heroku"
 
-    def test_deployment(self) -> None:
-        expected_topic = "sample-project"
-        expected_message = """
-user@example.com deployed version 3eb5f44 of [sample-project](http://sample-project.herokuapp.com):
+    def test_build_started_message(self) -> None:
+        expected_topic = "trade-it-15-server"
+        expected_message = "Build has started for trade-it-15-server by sbansal1999@gmail.com"
 
-``` quote
-  * Example User: Test commit for Deploy Hook 2
-```
-""".strip()
         self.check_webhook(
-            "deploy",
-            expected_topic,
-            expected_message,
-            content_type="application/x-www-form-urlencoded",
+            "build_started", expected_topic, expected_message, content_type="application/json"
         )
 
-    def test_deployment_multiple_commits(self) -> None:
-        expected_topic = "sample-project"
-        expected_message = """user@example.com deployed version 3eb5f44 of \
-[sample-project](http://sample-project.herokuapp.com)
-``` quote
-  * Example User: Test commit for Deploy Hook
-  * Example User: Second test commit for Deploy Hook 2
-```"""
+    def test_build_finished_message(self) -> None:
+        expected_topic = "trade-it-15-server"
+        expected_message = "Build has finished for trade-it-15-server by sbansal1999@gmail.com"
 
-        expected_message = """
-user@example.com deployed version 3eb5f44 of [sample-project](http://sample-project.herokuapp.com):
-
-``` quote
-  * Example User: Test commit for Deploy Hook
-  * Example User: Second test commit for Deploy Hook 2
-```
-""".strip()
         self.check_webhook(
-            "deploy_multiple_commits",
-            expected_topic,
-            expected_message,
-            content_type="application/x-www-form-urlencoded",
+            "build_finished", expected_topic, expected_message, content_type="application/json"
         )
 
-    def get_body(self, fixture_name: str) -> str:
-        return self.webhook_fixture_data("heroku", fixture_name, file_type="txt")
+    def test_release_started_message(self) -> None:
+        expected_topic = "trade-it-15-server"
+        expected_message = (
+            "Release has been started for trade-it-15-server by sbansal1999@gmail.com"
+        )
+
+        self.check_webhook(
+            "release_started", expected_topic, expected_message, content_type="application/json"
+        )
+
+    def test_release_phase_finished_message(self) -> None:
+        expected_topic = "trade-it-15-server"
+        expected_message = "Release has finished for trade-it-15-server by sbansal1999@gmail.com"
+
+        self.check_webhook(
+            "release_finished", expected_topic, expected_message, content_type="application/json"
+        )
