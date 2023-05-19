@@ -336,12 +336,19 @@ class GitHubWebhookTest(WebhookTestCase):
         self.check_webhook("pull_request__assigned", expected_topic, expected_message)
 
     def test_pull_request_unassigned_msg(self) -> None:
-        expected_message = (
-            "eeshangarg unassigned [PR #1](https://github.com/zulip-test-org/helloworld/pull/1)."
-        )
+        expected_message = "eeshangarg unassigned eeshangarg from [PR #1](https://github.com/zulip-test-org/helloworld/pull/1)."
         self.check_webhook(
             "pull_request__unassigned",
             "helloworld / PR #1 Mention that Zulip rocks!",
+            expected_message,
+        )
+
+    def test_pull_request_unassigned_multiple_assignees_msg(self) -> None:
+        expected_message = "sbansal1999 unassigned tester987654 from [PR #5](https://github.com/sbansal1999/testing-gh/pull/5)."
+        expected_topic = "testing-gh / PR #5 testing"
+        self.check_webhook(
+            "pull_request__unassigned_multiple_assignees",
+            expected_topic,
             expected_message,
         )
 
