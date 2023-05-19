@@ -46,6 +46,7 @@ export function initialize_disable_btn_hint_popover(
 export function initialize_cant_subscribe_popover(sub) {
     const $button_wrapper = stream_settings_containers
         .get_edit_container(sub)
+        .parent()
         .find(".sub_unsub_button_wrapper");
     const $settings_button = stream_settings_ui.settings_button_for_sub(sub);
     initialize_disable_btn_hint_popover(
