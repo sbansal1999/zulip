@@ -15,12 +15,7 @@ import * as stream_edit from "./stream_edit";
 import * as stream_settings_containers from "./stream_settings_containers";
 import * as stream_settings_ui from "./stream_settings_ui";
 
-export function initialize_disable_btn_hint_popover(
-    $btn_wrapper,
-    $popover_btn,
-    $disabled_btn,
-    hint_text,
-) {
+export function initialize_disable_btn_hint_popover($btn_wrapper, hint_text) {
     tippy($btn_wrapper[0], {
         content: hint_text,
         animation: false,
@@ -34,11 +29,8 @@ export function initialize_cant_subscribe_popover(sub) {
         .get_edit_container(sub)
         .parent()
         .find(".sub_unsub_button_wrapper");
-    const $settings_button = stream_settings_ui.settings_button_for_sub(sub);
     initialize_disable_btn_hint_popover(
         $button_wrapper,
-        $settings_button,
-        $settings_button,
         $t({defaultMessage: "Only stream members can add users to a private stream"}),
     );
 }
@@ -231,10 +223,6 @@ export function update_add_subscriptions_elements(sub) {
 
     // Otherwise, we adjust whether the widgets are disabled based on
     // whether this user is authorized to add subscribers.
-    const $input_element = $add_subscribers_container.find(".input").expectOne();
-    const $button_element = $add_subscribers_container
-        .find('button[name="add_subscriber"]')
-        .expectOne();
     const allow_user_to_add_subs = sub.can_add_subscribers;
 
     enable_or_disable_add_subscribers_elements($add_subscribers_container, allow_user_to_add_subs);
@@ -251,12 +239,7 @@ export function update_add_subscriptions_elements(sub) {
                 defaultMessage: "Only stream members can add users to a private stream.",
             });
         }
-        initialize_disable_btn_hint_popover(
-            $add_subscribers_container,
-            $input_element,
-            $button_element,
-            tooltip_message,
-        );
+        initialize_disable_btn_hint_popover($add_subscribers_container, tooltip_message);
     }
 }
 
