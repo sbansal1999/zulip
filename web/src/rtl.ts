@@ -1,4 +1,5 @@
 import _ from "lodash";
+import assert from "minimalistic-assert";
 
 // How to determine the direction of a paragraph (P1-P3): https://www.unicode.org/reports/tr9/tr9-35.html#The_Paragraph_Level
 // Embedding level: https://www.unicode.org/reports/tr9/tr9-35.html#BD2
@@ -16,12 +17,8 @@ import _ from "lodash";
  * Splits {@link raw} into parts of length {@link part_length},
  * and then converts each part to a character using simple base
  * conversion with the digits {@link digits}.
- * @param {string} digits
- * @param {number} part_length
- * @param {string} raw
- * @returns {number[]}
  */
-function convert_from_raw(digits, part_length, raw) {
+function convert_from_raw(digits: string, part_length: number, raw: string): number[] {
     const result = [];
     for (let i = 0; i < raw.length; ) {
         let t = 0;
@@ -83,10 +80,8 @@ const lr_ranges = [
 
 /**
  * Gets a character and returns a simplified version of its bidirectional class.
- * @param {number} ch A character to get its bidirectional class.
- * @returns {'I' | 'PDI' | 'R' | 'L' | 'Other'}
  */
-function get_bidi_class(ch) {
+function get_bidi_class(ch: number): "I" | "PDI" | "R" | "L" | "Other" {
     if (i_chars.has(ch)) {
         return "I"; // LRI, RLI, FSI
     }
@@ -106,13 +101,11 @@ function get_bidi_class(ch) {
 
 /**
  * Gets the direction that should be used to show the string.
- * @param {string} str The string to get its direction.
- * @returns {'ltr' | 'rtl'}
  */
-export function get_direction(str) {
+export function get_direction(str: string): "ltr" | "rtl" {
     let isolations = 0;
     for (const ch of str) {
-        const bidi_class = get_bidi_class(ch.codePointAt(0));
+        const bidi_class = get_bidi_class(ch.codePointAt(0)!);
         switch (bidi_class) {
             case "I":
                 // LRI, RLI, FSI
@@ -139,9 +132,10 @@ export function get_direction(str) {
     return "ltr";
 }
 
-export function set_rtl_class_for_textarea($textarea) {
+export function set_rtl_class_for_textarea($textarea: JQuery<HTMLTextAreaElement>): void {
     // Set the rtl class if the text has an rtl direction, remove it otherwise
     let text = $textarea.val();
+    assert(typeof text === "string", "Passed HTML element must be a textarea");
     if (text.startsWith("```quote")) {
         text = text.slice(8);
     }
