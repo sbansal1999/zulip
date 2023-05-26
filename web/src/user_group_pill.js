@@ -66,10 +66,10 @@ export function get_group_ids(pill_widget) {
     return group_ids;
 }
 
-export function filter_taken_groups(items, pill_widget) {
+export function filter_taken_groups(groups, pill_widget) {
     const taken_group_ids = get_group_ids(pill_widget);
-    items = items.filter((item) => !taken_group_ids.includes(item.id));
-    return items;
+    groups = groups.filter((item) => !taken_group_ids.includes(item.id));
+    return groups;
 }
 
 export function typeahead_source(pill_widget) {
