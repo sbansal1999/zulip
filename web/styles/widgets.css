@@ -27,6 +27,11 @@
         margin-right: 4px;
     }
 
+    /* for example in help `?` widget */
+    .spacer {
+        margin: 2px 0 !important;
+    }
+
     & label.checkbox {
         display: flex; /* Arrange that a multi-line description line wraps properly. */
         position: relative;

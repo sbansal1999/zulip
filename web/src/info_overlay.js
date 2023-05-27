@@ -45,6 +45,11 @@ const markdown_help_rows = [
         effect_html: "(links to a stream)",
     },
     {
+        markdown: "#**stream name>topic name**",
+        output_html: "<p><a>#stream name > topic name</a></p>",
+        effect_html: "(links to topic)",
+    },
+    {
         markdown: "@**Joe Smith**",
         output_html: '<p><span class="user-mention">@Joe Smith</span></p>',
         effect_html: "(notifies Joe Smith)",
@@ -53,6 +58,11 @@ const markdown_help_rows = [
         markdown: "@_**Joe Smith**",
         output_html: '<p><span class="user-mention">Joe Smith</span></p>',
         effect_html: "(links to profile but doesn't notify Joe Smith)",
+    },
+    {
+        markdown: "@*support team*",
+        output_html: '<p><span class="user-group-mention">@support team</span></p>',
+        effect_html: "(notifies <b>support team</b> group)",
     },
     {
         markdown: "@**all**",
@@ -121,6 +131,12 @@ def zulip():
         output_html: '<p><span class="sender_name-in-status">Iago</span> is busy working</p>',
     },
     {
+        markdown: "<time:2023-05-28T13:30:00+05:30>",
+        output_html:
+            '<p><time datetime="2023-05-28T08:00:00Z"><i class="fa fa-clock-o"></i>Sun, May 28, 2023, 1:30 PM</time></p>',
+        effect_html: "(displayed to everyone in their own time zone)",
+    },
+    {
         markdown: `/poll What did you drink this morning?
 Milk
 Tea
@@ -149,6 +165,23 @@ Coffee`,
         <span>Coffee</span>
     </li>
     </ul>
+</div>
+`,
+    },
+    {
+        markdown: "/todo",
+        output_html: `\
+<div class="message_content rendered_markdown">
+   <div class="widget-content">
+      <div class="todo-widget">
+         <h4>Task list</h4>
+         <div class="add-task-bar">
+            <input type="text" class="add-task spacer" placeholder="New task">
+            <input type="text" class="add-desc spacer" placeholder="Description">
+            <button class="add-task">Add task</button>
+         </div>
+      </div>
+   </div>
 </div>
 `,
     },
