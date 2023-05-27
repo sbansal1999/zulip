@@ -45,7 +45,7 @@ def get_push_event_body(payload: WildValue, include_title: bool) -> str:
 
 
 def get_normal_push_event_body(payload: WildValue) -> str:
-    compare_url = "{}/compare/{}...{}".format(
+    compare_url = "{}/-/compare/{}...{}".format(
         get_project_homepage(payload),
         payload["before"].tame(check_string),
         payload["after"].tame(check_string),
@@ -248,7 +248,7 @@ def get_commented_issue_event_body(payload: WildValue, include_title: bool) -> s
 def get_commented_snippet_event_body(payload: WildValue, include_title: bool) -> str:
     comment = payload["object_attributes"]
     action = "[commented]({}) on".format(comment["url"].tame(check_string))
-    url = "{}/snippets/{}".format(
+    url = "{}/-/snippets/{}".format(
         payload["project"]["web_url"].tame(check_string),
         payload["snippet"]["id"].tame(check_int),
     )
@@ -302,7 +302,7 @@ def get_pipeline_event_body(payload: WildValue, include_title: bool) -> str:
         action = f"changed status to {pipeline_status}"
 
     project_homepage = get_project_homepage(payload)
-    pipeline_url = "{}/pipelines/{}".format(
+    pipeline_url = "{}/-/pipelines/{}".format(
         project_homepage,
         payload["object_attributes"]["id"].tame(check_int),
     )
