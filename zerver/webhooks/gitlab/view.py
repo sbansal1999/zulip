@@ -216,10 +216,7 @@ def get_commented_commit_event_body(payload: WildValue, include_title: bool) -> 
 def get_commented_merge_request_event_body(payload: WildValue, include_title: bool) -> str:
     comment = payload["object_attributes"]
     action = "[commented]({}) on".format(comment["url"].tame(check_string))
-    url = "{}/merge_requests/{}".format(
-        payload["project"]["web_url"].tame(check_string),
-        payload["merge_request"]["iid"].tame(check_int),
-    )
+    url = payload["merge_request"]["url"].tame(check_string)
 
     return get_pull_request_event_message(
         user_name=get_issue_user_name(payload),
@@ -235,10 +232,7 @@ def get_commented_merge_request_event_body(payload: WildValue, include_title: bo
 def get_commented_issue_event_body(payload: WildValue, include_title: bool) -> str:
     comment = payload["object_attributes"]
     action = "[commented]({}) on".format(comment["url"].tame(check_string))
-    url = "{}/issues/{}".format(
-        payload["project"]["web_url"].tame(check_string),
-        payload["issue"]["iid"].tame(check_int),
-    )
+    url = payload["issue"]["url"].tame(check_string)
 
     return get_pull_request_event_message(
         user_name=get_issue_user_name(payload),
