@@ -743,6 +743,7 @@ IGNORED_EVENTS = [
 
 IGNORED_ISSUE_ACTIONS = [
     "labeled",
+    "unlabeled",
 ]
 
 IGNORED_PULL_REQUEST_ACTIONS = [
