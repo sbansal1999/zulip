@@ -79,7 +79,7 @@ export function update_settings_button_for_sub(sub) {
     }
     if (stream_data.can_toggle_subscription(sub)) {
         $settings_button.prop("disabled", false);
-        $settings_button.parent()[0]._tippy?.destroy();
+        $settings_button.parent()[0]?._tippy?.destroy();
         $settings_button.css("pointer-events", "");
     } else {
         $settings_button.attr("title", "");
