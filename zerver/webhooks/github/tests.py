@@ -166,6 +166,11 @@ class GitHubWebhookTest(WebhookTestCase):
         expected_message = "sbansal1999 assigned [issue #7 Sample Issue testing something](https://github.com/sbansal1999/testing-gh/issues/7) to sbansal1999."
         self.check_webhook("issues__assigned", expected_topic, expected_message)
 
+    def test_issue_labeled_ignore(self) -> None:
+        self.url = self.build_webhook_url()
+        payload = self.get_body("issues__labeled")
+        self.verify_post_is_ignored(payload, "issues")
+
     def test_issue_unassigned(self) -> None:
         expected_message = "sbansal1999 unassigned sbansal1999 from [issue #9](https://github.com/sbansal1999/testing-gh/issues/9)."
         expected_topic = "testing-gh / issue #9 idk man"

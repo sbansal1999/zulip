@@ -741,6 +741,10 @@ IGNORED_EVENTS = [
     "repository_vulnerability_alert",
 ]
 
+IGNORED_ISSUE_ACTIONS = [
+    "labeled",
+]
+
 IGNORED_PULL_REQUEST_ACTIONS = [
     "approved",
     "converted_to_draft",
@@ -857,6 +861,12 @@ def get_zulip_event_name(
             # this means GH has actually added new actions since September 2020,
             # so it's a bit more cause for alarm
             raise UnsupportedWebhookEventTypeError(f"unsupported team action {action}")
+    elif header_event == "issues":
+        action = payload["action"].tame(check_string)
+        if action in IGNORED_ISSUE_ACTIONS:
+            return None
+        else:
+            return "issues"
     elif header_event in list(EVENT_FUNCTION_MAPPER.keys()):
         return header_event
     elif header_event in IGNORED_EVENTS:
