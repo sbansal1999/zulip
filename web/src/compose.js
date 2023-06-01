@@ -76,6 +76,24 @@ export function update_video_chat_button_display() {
     const show_video_chat_button = compute_show_video_chat_button();
     $("#below-compose-content .video_link").toggle(show_video_chat_button);
     $(".message-edit-feature-group .video_link").toggle(show_video_chat_button);
+    update_audio_chat_button_display();
+}
+
+export function compute_show_audio_chat_button() {
+    const available_providers = page_params.realm_available_video_chat_providers;
+    if (
+        available_providers.jitsi_meet &&
+        page_params.realm_video_chat_provider === available_providers.jitsi_meet.id
+    ) {
+        return true;
+    }
+    return false;
+}
+
+export function update_audio_chat_button_display() {
+    const show_audio_chat_button = compute_show_audio_chat_button();
+    $("#below-compose-content .audio_link").toggle(show_audio_chat_button);
+    $(".message-edit-feature-group .audio_link").toggle(show_audio_chat_button);
 }
 
 export function clear_invites() {
@@ -358,6 +376,11 @@ function insert_video_call_url(url, target_textarea) {
     compose_ui.insert_syntax_and_focus(`[${link_text}](${url})`, target_textarea, "block", 1);
 }
 
+function insert_audio_call_url(url, target_textarea) {
+    const link_text = $t({defaultMessage: "Join audio call."});
+    compose_ui.insert_syntax_and_focus(`[${link_text}](${url})`, target_textarea, "block", 1);
+}
+
 export function render_and_show_preview($preview_spinner, $preview_content_box, content) {
     function show_preview(rendered_content, raw_content) {
         // content is passed to check for status messages ("/me ...")
@@ -419,6 +442,7 @@ export function render_and_show_preview($preview_spinner, $preview_content_box, 
 
 export function initialize() {
     $("#below-compose-content .video_link").toggle(compute_show_video_chat_button());
+    $("#below-compose-content .audio_link").toggle(compute_show_audio_chat_button());
 
     $("#compose-textarea").on("keydown", (event) => {
         compose_ui.handle_keydown(event, $("#compose-textarea").expectOne());
@@ -691,6 +715,28 @@ export function initialize() {
             video_call_link = generate_jitsi_meet_video_call_link();
             insert_video_call_url(video_call_link, $target_textarea);
         }
+    });
+
+    $("body").on("click", ".audio_link", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        let $target_textarea;
+        let edit_message_id;
+        if ($(e.target).parents(".message_edit_form").length === 1) {
+            edit_message_id = rows.id($(e.target).parents(".message_row"));
+            $target_textarea = $(`#edit_form_${CSS.escape(edit_message_id)} .message_edit_content`);
+        }
+
+        const show_audio_chat_button = compute_show_audio_chat_button();
+
+        if (!show_audio_chat_button) {
+            return;
+        }
+
+        const audio_call_link =
+            generate_jitsi_meet_video_call_link() + "#config.startWithVideoMuted=true";
+        insert_audio_call_url(audio_call_link, $target_textarea);
     });
 
     $("body").on("click", ".time_pick", (e) => {
