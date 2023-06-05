@@ -23,11 +23,17 @@ def generate_zulip_bots_static_files() -> None:
 
     os.makedirs(bots_dir, exist_ok=True)
 
-    def copyfiles(paths: List[str]) -> None:
+    def copyfiles(paths: List[str], are_assets: bool = False) -> None:
         for src_path in paths:
-            bot_name = os.path.basename(os.path.dirname(src_path))
+            if are_assets:
+                bot_name = os.path.basename(os.path.dirname(os.path.dirname(src_path)))
+                bot_dir = os.path.join(
+                    bots_dir, bot_name, os.path.basename(os.path.dirname(src_path))
+                )
+            else:
+                bot_name = os.path.basename(os.path.dirname(src_path))
+                bot_dir = os.path.join(bots_dir, bot_name)
 
-            bot_dir = os.path.join(bots_dir, bot_name)
             os.makedirs(bot_dir, exist_ok=True)
 
             dst_path = os.path.join(bot_dir, os.path.basename(src_path))
@@ -43,6 +49,10 @@ def generate_zulip_bots_static_files() -> None:
     doc_glob_pattern = os.path.join(package_bots_dir, "*/doc.md")
     docs = glob.glob(doc_glob_pattern)
     copyfiles(docs)
+
+    assets_glob_pattern = os.path.join(package_bots_dir, "*/assets/*")
+    assets = glob.glob(assets_glob_pattern)
+    copyfiles(assets, are_assets=True)
 
 
 if __name__ == "__main__":
