@@ -688,8 +688,7 @@ export function initialize() {
                 },
             });
         } else {
-            const video_call_id = util.random_int(100000000000000, 999999999999999);
-            video_call_link = page_params.jitsi_server_url + "/" + video_call_id;
+            video_call_link = generate_jitsi_meet_video_call_link();
             insert_video_call_url(video_call_link, $target_textarea);
         }
     });
@@ -855,4 +854,10 @@ function schedule_message_to_custom_date() {
         success,
         error,
     });
+}
+
+function generate_jitsi_meet_video_call_link() {
+    const video_call_id = util.random_int(100000000000000, 999999999999999);
+    const video_call_link = page_params.jitsi_server_url + "/" + video_call_id;
+    return video_call_link;
 }
