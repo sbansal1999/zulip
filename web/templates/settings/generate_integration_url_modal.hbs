@@ -1,0 +1,42 @@
+<div class="new-style">
+    <div class="input-group">
+        <label for="integration-name">{{t "Integration"}}</label>
+        <input type="text" id="integration-name" autocomplete="off"/>
+    </div>
+    <div class="input-group">
+        <label for="stream-name">{{t "Stream to use for notifications (optional)"}}</label>
+        <select id="stream-name" class="modal_select update-url">
+            <option value="">{{t "Select stream"}}</option>
+            {{#each streams}}
+                <option>{{this}}</option>
+            {{/each}}
+        </select>
+        <p>{{t "If you do not specify a stream, the bot will send notifications via PMs to the creator of the bot."}}</p>
+    </div>
+    <div class="input-group override-topic-group control-label-disabled">
+        <label class="checkbox">
+            <input
+              type="checkbox"
+              id="override-topic"
+              class="update-url"
+              disabled
+              />
+            <span></span>
+        </label>
+        <label class="inline" for="override-topic">
+            {{t "Override topic for notifications?"}}
+        </label>
+        <p>{{t "If selected, all notifications will be sent to a single topic of your choice."}}</p>
+    </div>
+    <div class="input-group topic-input hide">
+        <label for="topic-name">{{t "Topic"}}</label>
+        <input type="text" id="topic-name" class="update-url" />
+    </div>
+    <hr />
+    <p class="integration-url-header">{{t "URL for your integration"}}</p>
+    <div class="integration-url-container">
+        <div class="integration-url">
+            {{default_message}}
+        </div>
+    </div>
+</div>

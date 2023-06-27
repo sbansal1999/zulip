@@ -8,6 +8,7 @@ import render_bot_settings_tip from "../templates/settings/bot_settings_tip.hbs"
 import render_edit_bot_form from "../templates/settings/edit_bot_form.hbs";
 import render_settings_edit_embedded_bot_service from "../templates/settings/edit_embedded_bot_service.hbs";
 import render_settings_edit_outgoing_webhook_service from "../templates/settings/edit_outgoing_webhook_service.hbs";
+import render_generate_integration_url_modal from "../templates/settings/generate_integration_url_modal.hbs";
 
 import * as avatar from "./avatar";
 import * as bot_data from "./bot_data";
@@ -20,9 +21,11 @@ import {page_params} from "./page_params";
 import * as people from "./people";
 import * as settings_config from "./settings_config";
 import * as settings_users from "./settings_users";
+import * as stream_data from "./stream_data";
 import * as ui_report from "./ui_report";
 import * as user_profile from "./user_profile";
 
+const INCOMING_WEBHOOK_BOT_TYPE = 2;
 const OUTGOING_WEBHOOK_BOT_TYPE = "3";
 const EMBEDDED_BOT_TYPE = "4";
 
@@ -75,6 +78,7 @@ export function render_bots() {
             avatar_url: elem.avatar_url,
             api_key: elem.api_key,
             is_active: elem.is_active,
+            is_incoming_webhook_bot: elem.bot_type === INCOMING_WEBHOOK_BOT_TYPE,
             zuliprc: "zuliprc", // Most browsers do not allow filename starting with `.`
         });
         user_owns_an_active_bot = user_owns_an_active_bot || elem.is_active;
@@ -357,6 +361,7 @@ export function show_edit_bot_info_modal(user_id, from_user_info_popover) {
         bot_avatar_url: bot.avatar_url,
         owner_full_name,
         current_bot_owner: bot.bot_owner_id,
+        is_incoming_webhook_bot: bot.bot_type === INCOMING_WEBHOOK_BOT_TYPE,
     });
 
     let avatar_widget;
@@ -498,6 +503,13 @@ export function show_edit_bot_info_modal(user_id, from_user_info_popover) {
                 confirm_bot_deactivation(bot_id, handle_confirm, true);
             dialog_widget.close_modal(open_deactivate_modal_callback);
         });
+
+        $("#bot-edit-form").on("click", ".generate_url_for_integration", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const current_bot_data = bot_data.get(bot.user_id);
+            show_generate_url_modal(current_bot_data.api_key);
+        });
     }
 
     dialog_widget.launch({
@@ -509,6 +521,103 @@ export function show_edit_bot_info_modal(user_id, from_user_info_popover) {
         loading_spinner: from_user_info_popover,
         update_submit_disabled_state_on_change: true,
     });
+}
+
+export function show_generate_url_modal(api_key) {
+    const default_message = $t_html({defaultMessage: "Integration URL will appear here."});
+    let selected_integration = "";
+
+    const streams = stream_data.subscribed_streams();
+    const html_body = render_generate_integration_url_modal({default_message, streams});
+    dialog_widget.launch({
+        html_heading: $t_html({defaultMessage: "Generate URL for an integration"}),
+        html_body,
+        id: "generate-integration-url-modal",
+        html_submit_button: $t_html({defaultMessage: "Copy URL"}),
+        on_click() {},
+        close_on_submit: true,
+    });
+
+    const $integration_url = $("#generate-integration-url-modal .integration-url");
+    const $integration_name = $("#generate-integration-url-modal #integration-name");
+    const $topic_input = $("#generate-integration-url-modal .topic-input");
+    const $topic_name = $("#generate-integration-url-modal #topic-name");
+    const $stream_name = $("#generate-integration-url-modal #stream-name");
+    const $override_topic = $("#generate-integration-url-modal #override-topic");
+    const $override_topic_group = $("#generate-integration-url-modal .override-topic-group");
+
+    new ClipboardJS("#generate-integration-url-modal .dialog_submit_button", {
+        text() {
+            return $integration_url.text();
+        },
+    });
+
+    $integration_name
+        .typeahead({
+            items: 5,
+            fixed: true,
+            source: () => page_params.realm_incoming_webhook_bots.map((bot) => bot.display_name),
+            updater(item) {
+                selected_integration = page_params.realm_incoming_webhook_bots.find(
+                    (bot) => bot.display_name === item,
+                ).name;
+                update_url();
+                return item;
+            },
+        })
+        .on("input", function () {
+            const current_value = $(this).val();
+            if (current_value === "") {
+                selected_integration = "";
+                update_url();
+            }
+        });
+
+    $stream_name.on("change", function () {
+        const stream_name = $(this).val();
+        if (stream_name === "") {
+            $override_topic.prop("checked", false).prop("disabled", true);
+            $override_topic_group.addClass("control-label-disabled");
+            $topic_input.addClass("hide");
+            $topic_name.val("");
+        } else {
+            $override_topic.prop("disabled", false);
+            $override_topic_group.removeClass("control-label-disabled");
+        }
+    });
+
+    $override_topic.on("change", function () {
+        const checked = $(this).prop("checked");
+        $topic_input.toggleClass("hide", !checked);
+        $topic_name.val("");
+        update_url();
+    });
+
+    $("#generate-integration-url-modal .update-url").on("input", () => {
+        update_url();
+    });
+
+    function update_url() {
+        if (selected_integration === "") {
+            $integration_url.text(default_message);
+            return;
+        }
+
+        const stream_name = $stream_name.val();
+        const topic_name = $topic_name.val();
+
+        const params = new URLSearchParams({api_key});
+        if (stream_name !== "") {
+            params.set("stream", stream_name);
+            if (topic_name !== "") {
+                params.set("topic", topic_name);
+            }
+        }
+
+        const realm_url = page_params.realm_uri;
+        const base_url = `${realm_url}/api/v1/external/`;
+        $integration_url.text(`${base_url}${selected_integration}?${params}`);
+    }
 }
 
 export function set_up() {
@@ -609,6 +718,13 @@ export function set_up() {
         const bot_id = Number.parseInt($(e.currentTarget).attr("data-user-id"), 10);
         const bot = people.get_by_user_id(bot_id);
         user_profile.show_user_profile(bot, "user-profile-streams-tab");
+    });
+
+    $("#active_bots_list").on("click", "button.open-generate-integration-url-modal", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const api_key = $(e.currentTarget).attr("data-api-key");
+        show_generate_url_modal(api_key);
     });
 
     new ClipboardJS("#copy_zuliprc", {
