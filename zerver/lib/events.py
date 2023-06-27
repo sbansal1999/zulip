@@ -22,7 +22,11 @@ from zerver.lib.compatibility import is_outdated_server
 from zerver.lib.exceptions import JsonableError
 from zerver.lib.external_accounts import get_default_external_accounts
 from zerver.lib.hotspots import get_next_hotspots
-from zerver.lib.integrations import EMBEDDED_BOTS, WEBHOOK_INTEGRATIONS
+from zerver.lib.integrations import (
+    EMBEDDED_BOTS,
+    WEBHOOK_INTEGRATIONS,
+    get_all_event_types,
+)
 from zerver.lib.message import (
     add_message_to_unread_msgs,
     aggregate_unread_data,
@@ -506,6 +510,8 @@ def fetch_initial_state_data(
             realm_incoming_webhook_bots.append(
                 {
                     "name": integration.name,
+                    "display_name": integration.display_name,
+                    "all_event_types": get_all_event_types(integration),
                     "config": {c[1]: c[0] for c in integration.config_options},
                 }
             )

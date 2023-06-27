@@ -11437,6 +11437,24 @@ paths:
                               type: string
                               description: |
                                 The name of the bot.
+                            display_name:
+                              type: string
+                              description: |
+                                The name of the bot that is displayed to the users.
+
+                                **Changes**: New in Zulip 8.0 (feature level 192).
+                            all_event_types:
+                              type: array
+                              items:
+                                type: string
+                              nullable: true
+                              description: |
+                                The event types that are supported by the bot.
+
+                                A `null` value means that the bot does not make use of the
+                                event types feature.
+
+                                **Changes**: New in Zulip 8.0 (feature level 192).
                             config:
                               $ref: "#/components/schemas/Config"
                       recent_private_conversations:
