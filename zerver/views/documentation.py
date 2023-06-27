@@ -18,6 +18,7 @@ from zerver.lib.integrations import (
     META_CATEGORY,
     HubotIntegration,
     WebhookIntegration,
+    get_all_event_types,
 )
 from zerver.lib.request import REQ, RequestNotes, has_request_variables
 from zerver.lib.subdomains import get_subdomain
@@ -311,11 +312,9 @@ def integration_doc(request: HttpRequest, integration_name: str = REQ()) -> Http
     context["recommended_stream_name"] = integration.stream_name
     if isinstance(integration, WebhookIntegration):
         context["integration_url"] = integration.url[3:]
-        if (
-            hasattr(integration.function, "_all_event_types")
-            and integration.function._all_event_types is not None
-        ):
-            context["all_event_types"] = integration.function._all_event_types
+        all_event_types = get_all_event_types(integration)
+        if all_event_types is not None:
+            context["all_event_types"] = all_event_types
     if isinstance(integration, HubotIntegration):
         context["hubot_docs_url"] = integration.hubot_docs_url
 
