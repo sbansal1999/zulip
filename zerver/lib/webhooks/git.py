@@ -51,9 +51,9 @@ CREATE_BRANCH_WITHOUT_URL_MESSAGE_TEMPLATE = "{user_name} created {branch_name} 
 REMOVE_BRANCH_MESSAGE_TEMPLATE = "{user_name} deleted branch {branch_name}."
 
 ISSUE_LABELED_OR_UNLABELED_MESSAGE_TEMPLATE = (
-    "[{user_name}]({user_url}) {action} the {label_name} label {preposition} [Issue #{id}]({url})."
+    "[{user_name}]({user_url}) {action} the {label_name} label {preposition} [issue #{id}]({url})."
 )
-ISSUE_LABELED_OR_UNLABELED_MESSAGE_TEMPLATE_WITH_TITLE = "[{user_name}]({user_url}) {action} the {label_name} label {preposition} [Issue #{id} {title}]({url})."
+ISSUE_LABELED_OR_UNLABELED_MESSAGE_TEMPLATE_WITH_TITLE = "[{user_name}]({user_url}) {action} the {label_name} label {preposition} [issue #{id} {title}]({url})."
 
 ISSUE_MILESTONED_OR_DEMILESTONED_MESSAGE_TEMPLATE = "[{user_name}]({user_url}) {action} the [{milestone_name}]({milestone_url}) milestone {preposition} [issue #{id}]({url})."
 ISSUE_MILESTONED_OR_DEMILESTONED_MESSAGE_TEMPLATE_WITH_TITLE = "[{user_name}]({user_url}) {action} the [{milestone_name}]({milestone_url}) milestone {preposition} [issue #{id} {title}]({url})."
