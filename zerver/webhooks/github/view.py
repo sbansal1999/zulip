@@ -41,7 +41,9 @@ fixture_to_headers = get_http_headers_from_filename("HTTP_X_GITHUB_EVENT")
 
 TOPIC_FOR_DISCUSSION = "{repo} discussion #{number}: {title}"
 DISCUSSION_TEMPLATE = "{author} created [discussion #{discussion_id}]({url}) in {category}:\n\n~~~ quote\n### {title}\n{body}\n~~~"
-DISCUSSION_COMMENT_TEMPLATE = "{author} [commented]({comment_url}) on [discussion #{discussion_id}]({discussion_url}):\n\n~~~ quote\n{body}\n~~~"
+DISCUSSION_COMMENT_TEMPLATE = (
+    "{author} {action} [discussion #{discussion_id}]({discussion_url}):\n\n~~~ quote\n{body}\n~~~"
+)
 
 
 class Helper:
@@ -318,8 +320,15 @@ def get_discussion_body(helper: Helper) -> str:
 
 def get_discussion_comment_body(helper: Helper) -> str:
     payload = helper.payload
+    action = payload["action"].tame(check_string)
+    if action == "created":
+        action = "[commented]"
+    else:
+        action = f"{action} a [comment]"
+    action += "({}) on".format(payload["comment"]["html_url"].tame(check_string))
     return DISCUSSION_COMMENT_TEMPLATE.format(
         author=get_sender_name(payload),
+        action=action,
         body=payload["comment"]["body"].tame(check_string),
         discussion_url=payload["discussion"]["html_url"].tame(check_string),
         comment_url=payload["comment"]["html_url"].tame(check_string),

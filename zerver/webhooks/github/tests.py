@@ -560,5 +560,5 @@ A temporary team so that I can get some webhook fixtures!
         self.check_webhook("discussion_comment", TOPIC_DISCUSSION, expected_message)
 
     def test_discussion_comment_edited_msg(self) -> None:
-        expected_message = "sbansal1999 [commented](https://github.com/sbansal1999/testing-gh/discussions/20#discussioncomment-6332416) on [discussion #20](https://github.com/sbansal1999/testing-gh/discussions/20):\n\n~~~ quote\nsome random comment edited\n~~~"
+        expected_message = "sbansal1999 edited a [comment](https://github.com/sbansal1999/testing-gh/discussions/20#discussioncomment-6332416) on [discussion #20](https://github.com/sbansal1999/testing-gh/discussions/20):\n\n~~~ quote\nsome random comment edited\n~~~"
         self.check_webhook("discussion_comment__edited", TOPIC_DISCUSSION, expected_message)
