@@ -188,19 +188,12 @@ def get_issue_body(helper: Helper) -> str:
 def get_issue_comment_body(helper: Helper) -> str:
     payload = helper.payload
     include_title = helper.include_title
-    action = payload["action"].tame(check_string)
     comment = payload["comment"]
     issue = payload["issue"]
 
-    if action == "created":
-        action = "[commented]"
-    else:
-        action = f"{action} a [comment]"
-    action += "({}) on".format(comment["html_url"].tame(check_string))
-
     return get_issue_event_message(
         user_name=get_sender_name(payload),
-        action=action,
+        action=get_comment_action_message(payload),
         url=issue["html_url"].tame(check_string),
         number=issue["number"].tame(check_int),
         message=comment["body"].tame(check_string),
@@ -322,16 +315,10 @@ def get_discussion_body(helper: Helper) -> str:
 def get_discussion_comment_body(helper: Helper) -> str:
     payload = helper.payload
     include_title = helper.include_title
-    action = payload["action"].tame(check_string)
-    if action == "created":
-        action = "[commented]"
-    else:
-        action = f"{action} a [comment]"
-    action += "({}) on".format(payload["comment"]["html_url"].tame(check_string))
     if include_title:
         return DISCUSSION_COMMENT_TEMPLATE_WITH_TITLE.format(
             author=get_sender_name(payload),
-            action=action,
+            action=get_comment_action_message(payload),
             body=payload["comment"]["body"].tame(check_string),
             discussion_url=payload["discussion"]["html_url"].tame(check_string),
             comment_url=payload["comment"]["html_url"].tame(check_string),
@@ -341,12 +328,22 @@ def get_discussion_comment_body(helper: Helper) -> str:
 
     return DISCUSSION_COMMENT_TEMPLATE.format(
         author=get_sender_name(payload),
-        action=action,
+        action=get_comment_action_message(payload),
         body=payload["comment"]["body"].tame(check_string),
         discussion_url=payload["discussion"]["html_url"].tame(check_string),
         comment_url=payload["comment"]["html_url"].tame(check_string),
         discussion_id=payload["discussion"]["number"].tame(check_int),
     )
+
+
+def get_comment_action_message(payload: WildValue) -> str:
+    action = payload["action"].tame(check_string)
+    if action == "created":
+        action = "[commented]"
+    else:
+        action = f"{action} a [comment]"
+    action += "({}) on".format(payload["comment"]["html_url"].tame(check_string))
+    return action
 
 
 def get_public_body(helper: Helper) -> str:
