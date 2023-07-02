@@ -44,6 +44,7 @@ DISCUSSION_TEMPLATE = "{author} created [discussion #{discussion_id}]({url}) in 
 DISCUSSION_COMMENT_TEMPLATE = (
     "{author} {action} [discussion #{discussion_id}]({discussion_url}):\n\n~~~ quote\n{body}\n~~~"
 )
+DISCUSSION_COMMENT_TEMPLATE_WITH_TITLE = "{author} {action} [discussion #{discussion_id} {title}]({discussion_url}):\n\n~~~ quote\n{body}\n~~~"
 
 
 class Helper:
@@ -313,6 +314,18 @@ def get_discussion_body(helper: Helper) -> str:
 
 def get_discussion_comment_body(helper: Helper) -> str:
     payload = helper.payload
+    include_title = helper.include_title
+    if include_title:
+        return DISCUSSION_COMMENT_TEMPLATE_WITH_TITLE.format(
+            author=get_sender_name(payload),
+            action=get_comment_action(payload),
+            body=payload["comment"]["body"].tame(check_string),
+            discussion_url=payload["discussion"]["html_url"].tame(check_string),
+            comment_url=payload["comment"]["html_url"].tame(check_string),
+            discussion_id=payload["discussion"]["number"].tame(check_int),
+            title=payload["discussion"]["title"].tame(check_string),
+        )
+
     return DISCUSSION_COMMENT_TEMPLATE.format(
         author=get_sender_name(payload),
         action=get_comment_action(payload),
