@@ -182,19 +182,7 @@ def get_issue_body(helper: Helper) -> str:
 
 
 def get_issue_comment_body(helper: Helper) -> str:
-    payload = helper.payload
-    include_title = helper.include_title
-    comment = payload["comment"]
-    issue = payload["issue"]
-
-    return get_issue_event_message(
-        user_name=get_sender_name(payload),
-        action=get_comment_action(payload),
-        url=issue["html_url"].tame(check_string),
-        number=issue["number"].tame(check_int),
-        message=comment["body"].tame(check_string),
-        title=issue["title"].tame(check_string) if include_title else None,
-    )
+    return get_comment_body(helper, "issue")
 
 
 def get_issue_labeled_or_unlabeled_body(helper: Helper) -> str:
@@ -309,15 +297,21 @@ def get_discussion_body(helper: Helper) -> str:
 
 
 def get_discussion_comment_body(helper: Helper) -> str:
+    return get_comment_body(helper, "discussion")
+
+
+def get_comment_body(helper: Helper, type: str) -> str:
     payload = helper.payload
+    include_title = helper.include_title
+    data = payload[type]
     return get_pull_request_event_message(
         user_name=get_sender_name(payload),
         action=get_comment_action(payload),
-        url=payload["discussion"]["html_url"].tame(check_string),
-        number=payload["discussion"]["number"].tame(check_int),
+        url=data["html_url"].tame(check_string),
+        number=data["number"].tame(check_int),
         message=payload["comment"]["body"].tame(check_string),
-        title=payload["discussion"]["title"].tame(check_string) if helper.include_title else None,
-        type="discussion",
+        title=data["title"].tame(check_string) if include_title else None,
+        type=type,
     )
 
 
