@@ -41,10 +41,6 @@ fixture_to_headers = get_http_headers_from_filename("HTTP_X_GITHUB_EVENT")
 
 TOPIC_FOR_DISCUSSION = "{repo} discussion #{number}: {title}"
 DISCUSSION_TEMPLATE = "{author} created [discussion #{discussion_id}]({url}) in {category}:\n\n~~~ quote\n### {title}\n{body}\n~~~"
-DISCUSSION_COMMENT_TEMPLATE = (
-    "{author} {action} [discussion #{discussion_id}]({discussion_url}):\n\n~~~ quote\n{body}\n~~~"
-)
-DISCUSSION_COMMENT_TEMPLATE_WITH_TITLE = "{author} {action} [discussion #{discussion_id} {title}]({discussion_url}):\n\n~~~ quote\n{body}\n~~~"
 
 
 class Helper:
@@ -186,19 +182,7 @@ def get_issue_body(helper: Helper) -> str:
 
 
 def get_issue_comment_body(helper: Helper) -> str:
-    payload = helper.payload
-    include_title = helper.include_title
-    comment = payload["comment"]
-    issue = payload["issue"]
-
-    return get_issue_event_message(
-        user_name=get_sender_name(payload),
-        action=get_comment_action_message(payload),
-        url=issue["html_url"].tame(check_string),
-        number=issue["number"].tame(check_int),
-        message=comment["body"].tame(check_string),
-        title=issue["title"].tame(check_string) if include_title else None,
-    )
+    return get_comment_body(helper, "issue")
 
 
 def get_issue_labeled_or_unlabeled_body(helper: Helper) -> str:
@@ -313,26 +297,23 @@ def get_discussion_body(helper: Helper) -> str:
 
 
 def get_discussion_comment_body(helper: Helper) -> str:
+    return get_comment_body(helper, "discussion")
+
+
+def get_comment_body(helper: Helper, type: str) -> str:
     payload = helper.payload
     include_title = helper.include_title
-    if include_title:
-        return DISCUSSION_COMMENT_TEMPLATE_WITH_TITLE.format(
-            author=get_sender_name(payload),
-            action=get_comment_action_message(payload),
-            body=payload["comment"]["body"].tame(check_string),
-            discussion_url=payload["discussion"]["html_url"].tame(check_string),
-            comment_url=payload["comment"]["html_url"].tame(check_string),
-            discussion_id=payload["discussion"]["number"].tame(check_int),
-            title=payload["discussion"]["title"].tame(check_string),
-        )
+    comment = payload["comment"]
+    data = payload[type]
 
-    return DISCUSSION_COMMENT_TEMPLATE.format(
-        author=get_sender_name(payload),
+    return get_pull_request_event_message(
+        user_name=get_sender_name(payload),
         action=get_comment_action_message(payload),
-        body=payload["comment"]["body"].tame(check_string),
-        discussion_url=payload["discussion"]["html_url"].tame(check_string),
-        comment_url=payload["comment"]["html_url"].tame(check_string),
-        discussion_id=payload["discussion"]["number"].tame(check_int),
+        url=data["html_url"].tame(check_string),
+        number=data["number"].tame(check_int),
+        message=comment["body"].tame(check_string),
+        title=data["title"].tame(check_string) if include_title else None,
+        type=type,
     )
 
 
