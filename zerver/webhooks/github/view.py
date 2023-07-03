@@ -187,10 +187,13 @@ def get_issue_comment_body(helper: Helper) -> str:
 
 
 def get_issue_labeled_or_unlabeled_body(helper: Helper) -> str:
+    return get_labeled_or_unlabeled_body(helper, "issue")
+
+
+def get_labeled_or_unlabeled_body(helper: Helper, type: str) -> str:
     payload = helper.payload
     include_title = helper.include_title
-    issue = payload["issue"]
-
+    issue = payload[type]
     return get_labeled_or_unlabeled_event_message(
         user_name=get_sender_name(payload),
         action="added" if payload["action"].tame(check_string) == "labeled" else "removed",
@@ -199,7 +202,7 @@ def get_issue_labeled_or_unlabeled_body(helper: Helper) -> str:
         label_name=payload["label"]["name"].tame(check_string),
         user_url=get_sender_url(payload),
         title=issue["title"].tame(check_string) if include_title else None,
-        type="issue",
+        type=type,
     )
 
 
@@ -302,17 +305,7 @@ def get_discussion_body(helper: Helper) -> str:
         )
 
     if action in ("labeled", "unlabeled"):
-        include_title = helper.include_title
-        return get_labeled_or_unlabeled_event_message(
-            user_name=get_sender_name(payload),
-            action="added" if action == "labeled" else "removed",
-            url=payload["discussion"]["html_url"].tame(check_string),
-            number=payload["discussion"]["number"].tame(check_int),
-            label_name=payload["label"]["name"].tame(check_string),
-            user_url=get_sender_url(payload),
-            title=payload["discussion"]["title"].tame(check_string) if include_title else None,
-            type="discussion",
-        )
+        return get_labeled_or_unlabeled_body(helper, "discussion")
 
     return DISCUSSION_TEMPLATE.format(
         author=get_sender_name(payload),
