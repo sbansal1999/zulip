@@ -558,3 +558,15 @@ A temporary team so that I can get some webhook fixtures!
     def test_discussion_comment_msg(self) -> None:
         expected_message = "Codertocat [commented](https://github.com/baxterthehacker/public-repo/discussions/90#discussioncomment-544078) on [discussion #90](https://github.com/baxterthehacker/public-repo/discussions/90):\n```quote\nI have so many questions to ask you!\n```"
         self.check_webhook("discussion_comment", TOPIC_DISCUSSION, expected_message)
+
+    def test_discussion_labeled_msg(self) -> None:
+        expected_message = "sbansal1999 created [discussion #20](https://github.com/sbansal1999/testing-gh/discussions/20) in General:\n\n~~~ quote\n### Lets discuss\nSome random text about which no one cares.\r\n\n~~~"
+        self.check_webhook("discussion__labeled", TOPIC_DISCUSSION, expected_message)
+
+    def test_discussion_unlabeled_msg(self) -> None:
+        expected_message = "sbansal1999 created [discussion #20](https://github.com/sbansal1999/testing-gh/discussions/20) in General:\n\n~~~ quote\n### Lets discuss\nSome random text about which no one cares.\r\n\n~~~"
+        self.check_webhook("discussion__unlabeled", TOPIC_DISCUSSION, expected_message)
+
+    def test_discussion_category_changed_msg(self) -> None:
+        expected_message = "sbansal1999 created [discussion #20](https://github.com/sbansal1999/testing-gh/discussions/20) in Announcements:\n\n~~~ quote\n### Lets discuss\nSome random text about which no one cares.\r\n\n~~~"
+        self.check_webhook("discussion__category_changed", TOPIC_DISCUSSION, expected_message)
