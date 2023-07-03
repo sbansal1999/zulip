@@ -41,6 +41,7 @@ fixture_to_headers = get_http_headers_from_filename("HTTP_X_GITHUB_EVENT")
 
 TOPIC_FOR_DISCUSSION = "{repo} discussion #{number}: {title}"
 DISCUSSION_TEMPLATE = "[{author}]({author_url}) created [discussion #{discussion_id}]({url}) in {category}:\n\n~~~ quote\n### {title}\n{body}\n~~~"
+DISCUSSION_CATEGORY_CHANGE_TEMPLATE = "[{author}]({author_url}) changed the category of [discussion #{discussion_id} {title}]({url}) from **{old_category}** to **{new_category}**."
 
 
 class Helper:
@@ -287,6 +288,32 @@ def get_push_commits_body(helper: Helper) -> str:
 
 def get_discussion_body(helper: Helper) -> str:
     payload = helper.payload
+    action = payload["action"].tame(check_string)
+
+    if action == "category_changed":
+        return DISCUSSION_CATEGORY_CHANGE_TEMPLATE.format(
+            author=get_sender_name(payload),
+            author_url=get_sender_url(payload),
+            discussion_id=payload["discussion"]["number"].tame(check_int),
+            title=payload["discussion"]["title"].tame(check_string),
+            url=payload["discussion"]["html_url"].tame(check_string),
+            old_category=payload["changes"]["category"]["from"]["name"].tame(check_string),
+            new_category=payload["discussion"]["category"]["name"].tame(check_string),
+        )
+
+    if action in ("labeled", "unlabeled"):
+        include_title = helper.include_title
+        return get_labeled_or_unlabeled_event_message(
+            user_name=get_sender_name(payload),
+            action="added" if action == "labeled" else "removed",
+            url=payload["discussion"]["html_url"].tame(check_string),
+            number=payload["discussion"]["number"].tame(check_int),
+            label_name=payload["label"]["name"].tame(check_string),
+            user_url=get_sender_url(payload),
+            title=payload["discussion"]["title"].tame(check_string) if include_title else None,
+            type="discussion",
+        )
+
     return DISCUSSION_TEMPLATE.format(
         author=get_sender_name(payload),
         author_url=get_sender_url(payload),
