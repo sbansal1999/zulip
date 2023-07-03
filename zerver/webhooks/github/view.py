@@ -40,7 +40,7 @@ from zerver.models import UserProfile
 fixture_to_headers = get_http_headers_from_filename("HTTP_X_GITHUB_EVENT")
 
 TOPIC_FOR_DISCUSSION = "{repo} discussion #{number}: {title}"
-DISCUSSION_TEMPLATE = "{author} created [discussion #{discussion_id}]({url}) in {category}:\n\n~~~ quote\n### {title}\n{body}\n~~~"
+DISCUSSION_TEMPLATE = "[{author}]({author_url}) created [discussion #{discussion_id}]({url}) in {category}:\n\n~~~ quote\n### {title}\n{body}\n~~~"
 
 
 class Helper:
@@ -289,6 +289,7 @@ def get_discussion_body(helper: Helper) -> str:
     payload = helper.payload
     return DISCUSSION_TEMPLATE.format(
         author=get_sender_name(payload),
+        author_url=get_sender_url(payload),
         url=payload["discussion"]["html_url"].tame(check_string),
         body=payload["discussion"]["body"].tame(check_string),
         category=payload["discussion"]["category"]["name"].tame(check_string),
