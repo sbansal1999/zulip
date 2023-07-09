@@ -28,7 +28,7 @@ from zerver.lib.webhooks.git import (
     TOPIC_WITH_PR_OR_ISSUE_INFO_TEMPLATE,
     get_commits_comment_action_message,
     get_issue_event_message,
-    get_issue_labeled_or_unlabeled_event_message,
+    get_labeled_or_unlabeled_event_message,
     get_pull_request_event_message,
     get_push_commits_event_message,
     get_push_tag_event_message,
@@ -40,8 +40,8 @@ from zerver.models import UserProfile
 fixture_to_headers = get_http_headers_from_filename("HTTP_X_GITHUB_EVENT")
 
 TOPIC_FOR_DISCUSSION = "{repo} discussion #{number}: {title}"
-DISCUSSION_TEMPLATE = "{author} created [discussion #{discussion_id}]({url}) in {category}:\n```quote\n### {title}\n{body}\n```"
-DISCUSSION_COMMENT_TEMPLATE = "{author} [commented]({comment_url}) on [discussion #{discussion_id}]({discussion_url}):\n```quote\n{body}\n```"
+DISCUSSION_TEMPLATE = "[{author}]({author_url}) created [discussion #{discussion_id}]({url}) in {category}:\n\n~~~ quote\n### {title}\n{body}\n~~~"
+DISCUSSION_CATEGORY_CHANGE_TEMPLATE = "[{author}]({author_url}) changed the category of [discussion #{discussion_id} {title}]({url}) from **{old_category}** to **{new_category}**."
 
 
 class Helper:
@@ -183,34 +183,18 @@ def get_issue_body(helper: Helper) -> str:
 
 
 def get_issue_comment_body(helper: Helper) -> str:
-    payload = helper.payload
-    include_title = helper.include_title
-    action = payload["action"].tame(check_string)
-    comment = payload["comment"]
-    issue = payload["issue"]
-
-    if action == "created":
-        action = "[commented]"
-    else:
-        action = f"{action} a [comment]"
-    action += "({}) on".format(comment["html_url"].tame(check_string))
-
-    return get_issue_event_message(
-        user_name=get_sender_name(payload),
-        action=action,
-        url=issue["html_url"].tame(check_string),
-        number=issue["number"].tame(check_int),
-        message=comment["body"].tame(check_string),
-        title=issue["title"].tame(check_string) if include_title else None,
-    )
+    return get_comment_body(helper, "issue")
 
 
 def get_issue_labeled_or_unlabeled_body(helper: Helper) -> str:
+    return get_labeled_or_unlabeled_body(helper, "issue")
+
+
+def get_labeled_or_unlabeled_body(helper: Helper, type: str) -> str:
     payload = helper.payload
     include_title = helper.include_title
-    issue = payload["issue"]
-
-    return get_issue_labeled_or_unlabeled_event_message(
+    issue = payload[type]
+    return get_labeled_or_unlabeled_event_message(
         user_name=get_sender_name(payload),
         action="added" if payload["action"].tame(check_string) == "labeled" else "removed",
         url=issue["html_url"].tame(check_string),
@@ -218,6 +202,7 @@ def get_issue_labeled_or_unlabeled_body(helper: Helper) -> str:
         label_name=payload["label"]["name"].tame(check_string),
         user_url=get_sender_url(payload),
         title=issue["title"].tame(check_string) if include_title else None,
+        type=type,
     )
 
 
@@ -306,8 +291,25 @@ def get_push_commits_body(helper: Helper) -> str:
 
 def get_discussion_body(helper: Helper) -> str:
     payload = helper.payload
+    action = payload["action"].tame(check_string)
+
+    if action == "category_changed":
+        return DISCUSSION_CATEGORY_CHANGE_TEMPLATE.format(
+            author=get_sender_name(payload),
+            author_url=get_sender_url(payload),
+            discussion_id=payload["discussion"]["number"].tame(check_int),
+            title=payload["discussion"]["title"].tame(check_string),
+            url=payload["discussion"]["html_url"].tame(check_string),
+            old_category=payload["changes"]["category"]["from"]["name"].tame(check_string),
+            new_category=payload["discussion"]["category"]["name"].tame(check_string),
+        )
+
+    if action in ("labeled", "unlabeled"):
+        return get_labeled_or_unlabeled_body(helper, "discussion")
+
     return DISCUSSION_TEMPLATE.format(
         author=get_sender_name(payload),
+        author_url=get_sender_url(payload),
         url=payload["discussion"]["html_url"].tame(check_string),
         body=payload["discussion"]["body"].tame(check_string),
         category=payload["discussion"]["category"]["name"].tame(check_string),
@@ -317,14 +319,34 @@ def get_discussion_body(helper: Helper) -> str:
 
 
 def get_discussion_comment_body(helper: Helper) -> str:
+    return get_comment_body(helper, "discussion")
+
+
+def get_comment_body(helper: Helper, type: str) -> str:
     payload = helper.payload
-    return DISCUSSION_COMMENT_TEMPLATE.format(
-        author=get_sender_name(payload),
-        body=payload["comment"]["body"].tame(check_string),
-        discussion_url=payload["discussion"]["html_url"].tame(check_string),
-        comment_url=payload["comment"]["html_url"].tame(check_string),
-        discussion_id=payload["discussion"]["number"].tame(check_int),
+    include_title = helper.include_title
+    comment = payload["comment"]
+    data = payload[type]
+
+    return get_pull_request_event_message(
+        user_name=get_sender_name(payload),
+        action=get_comment_action_message(payload),
+        url=data["html_url"].tame(check_string),
+        number=data["number"].tame(check_int),
+        message=comment["body"].tame(check_string),
+        title=data["title"].tame(check_string) if include_title else None,
+        type=type,
     )
+
+
+def get_comment_action_message(payload: WildValue) -> str:
+    action = payload["action"].tame(check_string)
+    if action == "created":
+        action = "[commented]"
+    else:
+        action = f"{action} a [comment]"
+    action += "({}) on".format(payload["comment"]["html_url"].tame(check_string))
+    return action
 
 
 def get_public_body(helper: Helper) -> str:
@@ -383,7 +405,7 @@ def get_team_body(helper: Helper) -> str:
     if "description" in changes:
         actor = get_sender_name(payload)
         new_description = payload["team"]["description"].tame(check_string)
-        return f"**{actor}** changed the team description to:\n```quote\n{new_description}\n```"
+        return f"**{actor}** changed the team description to:\n\n~~~ quote\n{new_description}\n~~~"
     if "name" in changes:
         original_name = changes["name"]["from"].tame(check_string)
         new_name = payload["team"]["name"].tame(check_string)

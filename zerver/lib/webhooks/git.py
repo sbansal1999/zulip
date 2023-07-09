@@ -50,10 +50,10 @@ CREATE_BRANCH_MESSAGE_TEMPLATE = "{user_name} created [{branch_name}]({url}) bra
 CREATE_BRANCH_WITHOUT_URL_MESSAGE_TEMPLATE = "{user_name} created {branch_name} branch."
 REMOVE_BRANCH_MESSAGE_TEMPLATE = "{user_name} deleted branch {branch_name}."
 
-ISSUE_LABELED_OR_UNLABELED_MESSAGE_TEMPLATE = (
-    "[{user_name}]({user_url}) {action} the {label_name} label {preposition} [Issue #{id}]({url})."
+LABELED_OR_UNLABELED_MESSAGE_TEMPLATE = (
+    "[{user_name}]({user_url}) {action} the {label_name} label {preposition} [{type} #{id}]({url})."
 )
-ISSUE_LABELED_OR_UNLABELED_MESSAGE_TEMPLATE_WITH_TITLE = "[{user_name}]({user_url}) {action} the {label_name} label {preposition} [Issue #{id} {title}]({url})."
+LABELED_OR_UNLABELED_MESSAGE_TEMPLATE_WITH_TITLE = "[{user_name}]({user_url}) {action} the {label_name} label {preposition} [{type} #{id} {title}]({url})."
 
 PULL_REQUEST_OR_ISSUE_MESSAGE_TEMPLATE = "{user_name} {action} [{type}{id}]({url})"
 PULL_REQUEST_OR_ISSUE_MESSAGE_TEMPLATE_WITH_TITLE = (
@@ -278,13 +278,14 @@ def get_issue_event_message(
     )
 
 
-def get_issue_labeled_or_unlabeled_event_message(
+def get_labeled_or_unlabeled_event_message(
     user_name: str,
     action: str,
     url: str,
     number: int,
     label_name: str,
     user_url: str,
+    type: str,
     title: Optional[str] = None,
 ) -> str:
     args = {
@@ -295,11 +296,12 @@ def get_issue_labeled_or_unlabeled_event_message(
         "label_name": label_name,
         "user_url": user_url,
         "title": title,
+        "type": type,
         "preposition": "to" if action == "added" else "from",
     }
     if title is not None:
-        return ISSUE_LABELED_OR_UNLABELED_MESSAGE_TEMPLATE_WITH_TITLE.format(**args)
-    return ISSUE_LABELED_OR_UNLABELED_MESSAGE_TEMPLATE.format(**args)
+        return LABELED_OR_UNLABELED_MESSAGE_TEMPLATE_WITH_TITLE.format(**args)
+    return LABELED_OR_UNLABELED_MESSAGE_TEMPLATE.format(**args)
 
 
 def get_push_tag_event_message(
