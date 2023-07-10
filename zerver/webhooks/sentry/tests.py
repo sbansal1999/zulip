@@ -260,3 +260,13 @@ This is an example python exception
 **timestamp:** 2023-05-31 11:06:16
 ```"""
         self.check_webhook("sample_event_through_alert", expected_topic, expected_message)
+
+    def test_sample_event_through_plugin(self) -> None:
+        expected_topic = "This is an example Python exception"
+        expected_message = """\
+**New message event:** [This is an example Python exception](https://nitk-46.sentry.io/issues/4218258981/events/4dc4fc2858aa450eb658be9e5b8ad149/)
+```quote
+**level:** error
+**timestamp:** 2023-07-09 20:41:24
+```"""
+        self.check_webhook("sample_event_through_plugin", expected_topic, expected_message)
