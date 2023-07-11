@@ -146,7 +146,7 @@ class GitHubWebhookTest(WebhookTestCase):
         self.check_webhook("issue_comment", expected_topic, expected_message)
 
     def test_issue_comment_pull_request_comment_msg(self) -> None:
-        expected_topic = "testing-gh / issue #23 Update first.txt"
+        expected_topic = "testing-gh / PR #23 Update first.txt"
         expected_message = "sbansal1999 [commented](https://github.com/sbansal1999/testing-gh/pull/23#issuecomment-1631445420) on [issue #23](https://github.com/sbansal1999/testing-gh/pull/23):\n\n~~~ quote\nSome comment\n~~~"
         self.check_webhook("issue_comment__pull_request_comment", expected_topic, expected_message)
 

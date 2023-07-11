@@ -674,6 +674,16 @@ def get_topic_based_on_type(payload: WildValue, event: str) -> str:
             title=payload["pull_request"]["title"].tame(check_string),
         )
     elif event.startswith("issue"):
+        # When a comment is made on a PR, the event still has the header
+        # "issue_comment", but the payload has a "pull_request" key.
+        # This is just a workaround to get the correct topic.
+        if event == "issue_comment" and "pull_request" in payload["issue"]:
+            return TOPIC_WITH_PR_OR_ISSUE_INFO_TEMPLATE.format(
+                repo=get_repository_name(payload),
+                type="PR",
+                id=payload["issue"]["number"].tame(check_int),
+                title=payload["issue"]["title"].tame(check_string),
+            )
         return TOPIC_WITH_PR_OR_ISSUE_INFO_TEMPLATE.format(
             repo=get_repository_name(payload),
             type="issue",
