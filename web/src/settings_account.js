@@ -282,9 +282,9 @@ export function initialize_custom_date_type_fields(element_id) {
         .find(".custom_user_field .datepicker")
         .on("mouseenter", function () {
             if ($(this).val().length <= 0) {
-                $(this).parent().find(".remove_date").hide();
+                $(this).parent().next(".remove_date").hide();
             } else {
-                $(this).parent().find(".remove_date").show();
+                $(this).parent().next(".remove_date").show();
             }
         });
 
