@@ -58,7 +58,7 @@ export const show_user_group_settings_pane = {
 };
 
 export function do_open_create_user_group() {
-    user_group_create.create_user_group_clicked();
+    user_group_create.create_user_group_clicked(show_user_group_settings_pane.create_user_group);
 }
 
 export function open_create_user_group() {
