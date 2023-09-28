@@ -523,6 +523,7 @@ def fetch_initial_state_data(
                 "config": {c[1]: c[0] for c in integration.config_options},
             }
             for integration in WEBHOOK_INTEGRATIONS
+            if integration.legacy is False
         ]
 
     if want("recent_private_conversations"):

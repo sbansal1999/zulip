@@ -20,6 +20,11 @@ format used by the Zulip server that they are interacting with.
 
 ## Changes in Zulip 8.0
 
+**Feature level 214**
+
+* [`POST /register`](/api/register-queue): The `realm_incoming_webhook_bots`
+  object now only includes non-legacy bots.
+
 **Feature level 213**
 
 * [`POST /register`](/api/register-queue): Fixed incorrect handling of
