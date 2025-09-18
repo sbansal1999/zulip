@@ -1,6 +1,9 @@
 import $ from "jquery";
 import _ from "lodash";
 
+import render_left_sidebar_expanded_view_items_list from "../templates/left_sidebar_expanded_view_items_list.hbs";
+import render_left_sidebar_primary_condensed_view_item from "../templates/left_sidebar_primary_condensed_view_item.hbs";
+
 import * as drafts from "./drafts.ts";
 import type {Filter} from "./filter.ts";
 import {localstorage} from "./localstorage.ts";
@@ -11,18 +14,34 @@ import * as people from "./people.ts";
 import * as resize from "./resize.ts";
 import * as scheduled_messages from "./scheduled_messages.ts";
 import * as settings_config from "./settings_config.ts";
+import * as starred_messages from "./starred_messages.ts";
 import type {NarrowTerm} from "./state_data.ts";
 import * as ui_util from "./ui_util.ts";
 import * as unread from "./unread.ts";
+import {user_settings} from "./user_settings.ts";
 
 let last_mention_count = 0;
 const ls_key = "left_sidebar_views_state";
 const ls = localstorage();
+export let current_active_fragment: string | undefined;
+
+export const VIEW_PRIORITY = {
+    CONDENSED: 2,
+    PINNED: 1,
+    UNPINNED: 0,
+    HIDDEN: -1,
+} as const;
+
+type ViewPriority = (typeof VIEW_PRIORITY)[keyof typeof VIEW_PRIORITY];
 
 const STATES = {
     EXPANDED: "expanded",
     CONDENSED: "condensed",
 };
+
+export function is_condensed(): boolean {
+    return ls.get(ls_key) === STATES.CONDENSED;
+}
 
 export function restore_views_state(): void {
     if (page_params.is_spectator) {
@@ -50,6 +69,11 @@ export function update_starred_count(count: number, hidden: boolean): void {
         return;
     }
     $starred_li.removeClass("hide_starred_message_count");
+}
+
+// Should we replace this with drafts.initialize_ui(); or use it in here?
+function update_drafts_count(): void {
+    drafts.set_count(drafts.draft_model.getDraftCount());
 }
 
 export function update_scheduled_messages_row(): void {
@@ -98,7 +122,20 @@ export let select_top_left_corner_item = function (narrow_to_activate: string): 
     $(".top-left-active-filter").removeClass("top-left-active-filter");
     if (narrow_to_activate !== "") {
         $(narrow_to_activate).addClass("top-left-active-filter");
+        const view_match_key = /\.top_left_(.+)/.exec(narrow_to_activate);
+
+        let fragment;
+        if (view_match_key?.[1]) {
+            const css_class_suffix = view_match_key[1];
+            if (navigation_views.is_built_in_view_key(css_class_suffix)) {
+                fragment = navigation_views.built_in_views_meta_data[css_class_suffix].fragment;
+            }
+        }
+        current_active_fragment = fragment;
+    } else {
+        current_active_fragment = undefined;
     }
+    update_sidebar_for_navigation_views();
 };
 
 export function rewire_select_top_left_corner_item(
@@ -284,53 +321,95 @@ export function handle_home_view_changed(new_home_view: string): void {
     update_dom_with_unread_counts(res, true);
 }
 
-export function get_built_in_primary_condensed_views(): navigation_views.BuiltInViewMetadata[] {
-    function score(view: navigation_views.BuiltInViewMetadata): number {
-        if (view.prioritize_in_condensed_view) {
-            return 1;
-        }
-        return 0;
+export function get_view_pinned_priority(view: navigation_views.BuiltInViewMetadata): ViewPriority {
+    if (view.fragment === "scheduled" && scheduled_messages.get_count() === 0) {
+        return VIEW_PRIORITY.HIDDEN;
     }
-    // Get the top 5 prioritized views.
-    return navigation_views
-        .get_built_in_views()
-        .toSorted((view1, view2) => score(view2) - score(view1))
-        .slice(0, 5);
-    // TODO: Think about filtering out scheduled message and reminders views with UI to support less than 5 views.
+    if (view.fragment === "reminders" && message_reminder.get_count() === 0) {
+        return VIEW_PRIORITY.HIDDEN;
+    }
+    if (view.prioritize_in_condensed_view && view.is_pinned) {
+        return VIEW_PRIORITY.CONDENSED;
+    }
+    if (view.is_pinned) {
+        return VIEW_PRIORITY.PINNED;
+    }
+    return VIEW_PRIORITY.UNPINNED;
 }
 
-export function get_built_in_popover_condensed_views(): navigation_views.BuiltInViewMetadata[] {
-    const visible_condensed_views = get_built_in_primary_condensed_views();
-    const all_views = navigation_views.get_built_in_views();
-    return all_views.filter((view) => {
-        if (view.fragment === "scheduled") {
-            const scheduled_message_count = scheduled_messages.get_count();
-            if (scheduled_message_count === 0) {
-                return false;
-            }
-            view.unread_count = scheduled_message_count;
-            return true;
-        }
-        if (view.fragment === "reminders") {
-            const reminders_count = message_reminder.get_count();
-            if (reminders_count === 0) {
-                return false;
-            }
-            view.unread_count = reminders_count;
-            return true;
-        }
-        if (view.fragment === "drafts") {
-            view.unread_count = drafts.draft_model.getDraftCount();
-        }
-        // Remove views that are already visible.
-        return !visible_condensed_views.some(
-            (visible_view) => visible_view.fragment === view.fragment,
+export function get_primary_condensed_views(): navigation_views.BuiltInViewMetadata[] {
+    return navigation_views
+        .get_built_in_views()
+        .filter((view) => get_view_pinned_priority(view) >= VIEW_PRIORITY.PINNED)
+        .toSorted((a, b) => get_view_pinned_priority(a) - get_view_pinned_priority(b))
+        .slice(0, 5);
+}
+
+export function get_built_in_pinned_views(
+    active_fragment?: string,
+): navigation_views.BuiltInViewMetadata[] {
+    return navigation_views
+        .get_built_in_views()
+        .filter(
+            (view) =>
+                get_view_pinned_priority(view) > 0 ||
+                (active_fragment ? view.fragment === active_fragment : false),
         );
-    });
+}
+
+export function get_built_in_unpinned_views(): navigation_views.BuiltInViewMetadata[] {
+    return navigation_views
+        .get_built_in_views()
+        .filter((view) => get_view_pinned_priority(view) === VIEW_PRIORITY.UNPINNED);
 }
 
 export function get_built_in_views(): navigation_views.BuiltInViewMetadata[] {
     return navigation_views.get_built_in_views();
+}
+
+export function update_sidebar_for_navigation_views(): void {
+    const primary_condensed_views = get_primary_condensed_views();
+    const active_fragment = current_active_fragment;
+    const expanded_views = get_built_in_pinned_views(current_active_fragment);
+    const active_view = expanded_views.find((view) => view.fragment === active_fragment);
+    const has_unpinned_views = get_built_in_unpinned_views().length > 0;
+    const condensed = is_condensed();
+    const should_hide_menu = !condensed && !has_unpinned_views;
+    const should_show_empty_state = !condensed && expanded_views.length === 0;
+
+    const expanded_views_html = render_left_sidebar_expanded_view_items_list({
+        expanded_views,
+        show_empty_state: should_show_empty_state,
+    });
+    $("#left-sidebar-navigation-list").html(expanded_views_html);
+
+    const condensed_views_html = primary_condensed_views
+        .map((view) => render_left_sidebar_primary_condensed_view_item(view))
+        .join("");
+
+    const $left_sidebar_navigation_list_condensed = $("#left-sidebar-navigation-list-condensed");
+
+    $left_sidebar_navigation_list_condensed
+        .find(".left-sidebar-primary-condensed-view-item")
+        .remove();
+    $left_sidebar_navigation_list_condensed.prepend($(condensed_views_html));
+
+    $(".left-sidebar-navigation-menu-icon").toggleClass("hide", should_hide_menu);
+
+    if (active_fragment && active_view) {
+        $(".top-left-active-filter").removeClass("top-left-active-filter");
+        $(`.top_left_${active_view.css_class_suffix}`).addClass("top-left-active-filter");
+    }
+
+    const counts = unread.get_counts();
+    update_dom_with_unread_counts(counts, true);
+
+    update_drafts_count();
+    update_reminders_row();
+    update_scheduled_messages_row();
+
+    const should_hide_starred_message_count = !user_settings.starred_message_counts;
+    update_starred_count(starred_messages.get_count(), should_hide_starred_message_count);
 }
 
 export function initialize(): void {
