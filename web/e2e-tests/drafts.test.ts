@@ -16,7 +16,7 @@ async function get_drafts_count(page: Page): Promise<number> {
     return await page.$$eval("#drafts_table .overlay-message-row", (drafts) => drafts.length);
 }
 
-const drafts_button = ".top_left_drafts";
+const drafts_button = "#left-sidebar-navigation-list .top_left_drafts";
 const drafts_overlay = "#draft_overlay";
 
 async function test_empty_drafts(page: Page): Promise<void> {
